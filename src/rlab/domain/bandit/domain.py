@@ -113,6 +113,9 @@ class BanditDomain(DomainPlugin):
             Knob("init_value", (0.5, 1.0), frozenset({"optimistic_greedy"})),
         ]
 
+    def policy_families(self) -> list[str]:
+        return list(self.POLICY_PARAM_RANGES.keys())
+
     # ------------------------------------------------------------------
     def starter_hypotheses(self) -> list[HypothesisDraft]:
         # Starters carry explicit experiment sketches so the designer never

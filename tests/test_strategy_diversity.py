@@ -75,3 +75,37 @@ def test_session_designs_do_not_repeat(tmp_path: Path):
     wasted = sum(1 for o in summary["outcomes"]
                  if o["status"] in ("skipped_repeated", "failed"))
     assert wasted <= 3, f"{wasted} iterations wasted on repeated proposals"
+
+
+def test_transfer_never_collapses_when_champion_is_baseline(tmp_path):
+    """Regression from the optim cross-domain session: when the champion is
+    the baseline policy, transfer must contrast against the rival, not fold
+    into a single-variant design."""
+    from rlab.agents.designer import ExperimentDesigner
+    from rlab.agents.hypothesis import Champion, HypothesisAgent, ResearchMemory
+    from rlab.domain import get_domain
+
+    cfg = LabConfig(root=tmp_path)
+    agent = HypothesisAgent(EventBus(), cfg)
+    designer = ExperimentDesigner(EventBus(), cfg)
+    plugin = get_domain("optim")
+
+    mem = ResearchMemory()
+    mem.n_hypotheses_proposed = 2
+    rs = {"policy": "random_search"}
+    sa = {"policy": "simulated_annealing", "t0": 1.0, "alpha": 0.995,
+          "sigma_scale": 0.05}
+    mem.champion = Champion("random_search", rs, "sphere",
+                            {"dim": 8, "n_evals": 4000}, "sphere@4000", 1.23)
+    mem.rival = Champion(
+        "simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1", sa,
+        "sphere", {"dim": 8, "n_evals": 4000}, "sphere@4000", 2.5)
+    mem.combo_tested = {plugin.budget_key("sphere", {"dim": 8, "n_evals": 4000})}
+    mem.critic_codes = []
+
+    draft, _ = agent.propose("rs_x", "q", plugin, mem, gaps=[])
+    assert draft.strategy == "transfer_test"
+    design = designer.design("rs_x", plugin, draft)
+    assert len(design.config.variants) >= 2, (
+        "transfer collapsed to a single variant when champion == baseline"
+    )

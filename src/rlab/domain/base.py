@@ -98,6 +98,10 @@ class DomainPlugin(ABC):
     @abstractmethod
     def knobs(self) -> list[Knob]: ...
 
+    def policy_families(self) -> list[str]:
+        """All policy/solver family names known to this domain."""
+        return []
+
     @abstractmethod
     def starter_hypotheses(self) -> list[HypothesisDraft]: ...
 

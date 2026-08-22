@@ -128,6 +128,61 @@ def _norm_cdf(x: float) -> float:
     return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
 
 
+def _wilcoxon_exact_p(w_plus: float, n: int) -> float:
+    """Exact two-sided p by enumerating all 2^n sign assignments."""
+    total = 1 << n
+    mu = n * (n + 1) / 4
+
+    def _tail_count() -> int:
+        hits = 0
+        for mask in range(total):
+            s = 0
+            for i in range(n):
+                if (mask >> i) & 1:
+                    s += i + 1
+            if w_plus <= mu:
+                hits += s <= w_plus + 1e-9
+            else:
+                hits += s >= w_plus - 1e-9
+        return hits
+
+    p_one_sided = _tail_count() / total
+    # two-sided: double the smaller tail
+    return float(min(1.0, 2.0 * min(p_one_sided, 1.0)))
+
+
+def wilcoxon_signed_rank(a: Sequence[float], b: Sequence[float]) -> tuple[float, float]:
+    """Wilcoxon signed-rank test on paired differences ``a - b``.
+
+    Returns (W_plus, two-sided p). Exact enumeration for n<=13 nonzero
+    differences; tie-corrected normal approximation with continuity
+    correction above that.
+    """
+    x = np.asarray(a, dtype=float)
+    y = np.asarray(b, dtype=float)
+    if x.size != y.size or x.size < 6:
+        raise ValueError("wilcoxon requires equal-length samples with n>=6")
+    diff = x - y
+    diff = diff[diff != 0]
+    n = int(diff.size)
+    if n == 0:
+        return 0.0, 1.0
+    abs_diff = np.abs(diff)
+    ranks = _rankdata_with_ties(abs_diff)
+    w_plus = float(ranks[diff > 0].sum())
+    if n <= 13:
+        return w_plus, _wilcoxon_exact_p(w_plus, n)
+    mu = n * (n + 1) / 4
+    _, counts = np.unique(abs_diff, return_counts=True)
+    tie_term = ((counts ** 3 - counts).sum()) / (n * (n - 1))
+    sigma = math.sqrt(n * (n + 1) * (2 * n + 1) / 24 - tie_term / 2)
+    if sigma == 0:
+        return w_plus, 1.0
+    z_cc = (abs(w_plus - mu) - 0.5) / sigma * math.copysign(1.0, w_plus - mu)
+    p = 2.0 * (1.0 - _norm_cdf(abs(z_cc)))
+    return w_plus, float(min(1.0, max(0.0, p)))
+
+
 # ---------------------------------------------------------------------------
 # Bootstrap confidence intervals
 # ---------------------------------------------------------------------------
@@ -271,6 +326,7 @@ def required_n_per_group(d: float, alpha: float = 0.05, power: float = 0.8) -> i
 
 __all__ = [
     "describe", "welch_ttest", "paired_ttest", "mann_whitney_u",
+    "wilcoxon_signed_rank",
     "bootstrap_ci", "bootstrap_delta_ci", "bootstrap_delta_ci_paired",
     "cohens_d", "cliffs_delta",
     "holm_bonferroni", "benjamini_hochberg", "required_n_per_group",

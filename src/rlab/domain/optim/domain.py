@@ -105,6 +105,11 @@ class OptimDomain(DomainPlugin):
             Knob("sigma", (0.1, 0.3, 0.6), frozenset({"hill_climb"})),
         ]
 
+    def policy_families(self) -> list[str]:
+        from .kernel import SOLVER_PARAM_RANGES
+
+        return list(SOLVER_PARAM_RANGES.keys())
+
     def starter_hypotheses(self) -> list[HypothesisDraft]:
         sa_params = {"policy": "simulated_annealing", "t0": 1.0, "alpha": 0.995,
                      "sigma_scale": 0.05}

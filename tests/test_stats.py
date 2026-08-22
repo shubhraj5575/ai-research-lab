@@ -352,3 +352,62 @@ def test_describe_empty_is_safe():
     d = describe([])
     assert d["n"] == 0
     assert math.isnan(d["mean"])
+
+
+# ---------------------------------------------------------------------------
+# 10. Wilcoxon signed-rank
+# ---------------------------------------------------------------------------
+def test_wilcoxon_perfect_shift_exact():
+    from rlab.stats import wilcoxon_signed_rank
+
+    a = list(map(float, range(1, 11)))
+    b = [v + 2.0 for v in a]           # all diffs negative (a - b = -2)
+    w, p = wilcoxon_signed_rank(a, b)
+    assert w == 0.0
+    # exact: P(W+ <= 0) = 1/1024 -> two-sided ~0.002
+    assert p == pytest.approx(2 / 1024)
+
+
+def test_wilcoxon_symmetric_null_not_significant():
+    from rlab.stats import wilcoxon_signed_rank
+
+    rng = np.random.default_rng(4)
+    diffs = rng.normal(0, 1, 40)
+    a = (10 + diffs / 2).tolist()
+    b = (10 - diffs / 2).tolist()
+    _, p = wilcoxon_signed_rank(a, b)
+    assert p > 0.05
+
+
+def test_wilcoxon_matches_bruteforce_on_small_n():
+    """Exact path must agree with an independent brute-force enumeration."""
+    from itertools import product
+
+    from rlab.stats import wilcoxon_signed_rank
+    from rlab.stats.engine import _rankdata_with_ties
+
+    rng = np.random.default_rng(9)
+    base = rng.normal(5, 2, 8)
+    a = (base + rng.normal(0.3, 0.8, 8)).tolist()
+    b = base.tolist()
+
+    diff = np.asarray(a) - np.asarray(b)
+    keep = diff != 0
+    ranks = _rankdata_with_ties(np.abs(diff[keep]))
+    signs_all = list(product([False, True], repeat=int(keep.sum())))
+    w_obs = float(ranks[diff[keep] > 0].sum())
+
+    def w_of(signs):
+        return float(sum(r for r, s in zip(ranks, signs) if s))
+
+    ge = sum(1 for sgn in signs_all if w_of(sgn) >= w_obs - 1e-9)
+    p_manual = min(1.0, 2.0 * min(ge / len(signs_all), 1.0))
+    _, p = wilcoxon_signed_rank(a, b)
+    assert p == pytest.approx(p_manual)
+
+
+def test_wilcoxon_rejects_tiny_samples():
+    from rlab.stats import wilcoxon_signed_rank
+
+    with pytest.raises(ValueError):
+        wilcoxon_signed_rank([1.0, 2.0], [2.0, 1.0])

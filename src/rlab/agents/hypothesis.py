@@ -248,31 +248,53 @@ class HypothesisAgent(Agent):
             task_params["gap_min"] = 0.0
         champ_label = champ.variant_label
         baseline_params = plugin.baseline_variant()
+        baseline_label = plugin.variant_label(baseline_params)
+        if champ_label == baseline_label:
+            # Champion IS the baseline policy: a champion-vs-baseline contrast
+            # would collapse to a single variant. Contrast against the rival.
+            rival = memory.rival
+            if rival is None:
+                return None
+            rival_label = plugin.variant_label(rival.params)
+            if rival_label == champ_label:
+                return None
+            variants = {
+                champ_label: champ.params,
+                rival_label: rival.params,
+            }
+            reference_label = rival_label
+            comparator_desc = f"{rival_label} (rival)"
+        else:
+            variants = {
+                champ_label: champ.params,
+                baseline_label: baseline_params,
+            }
+            reference_label = baseline_label
+            comparator_desc = f"{baseline_label} (baseline)"
         return HypothesisDraft(
             claim=(
-                f"The champion's advantage transfers to {task_id} at "
-                f"{budget['label']} without retuning."
+                f"The champion's standing transfers to {task_id} at "
+                f"{budget['label']} without retuning: {champ_label} stays ahead "
+                f"of {comparator_desc}."
             ),
             reasoning=(
                 "An effect that only holds in its original setting is fragile; "
                 "transfer tests are the cheapest falsification attempt available."
             ),
-            expected_result=f"{champ_label} still ranks above baseline.",
+            expected_result=f"{champ_label} still ranks above {comparator_desc}.",
             falsification_condition=(
-                f"{champ_label} no better than baseline on {task_id} "
+                f"{champ_label} no better than {reference_label} on {task_id} "
                 f"({budget['label']}); CI of difference includes 0 or reverses."
             ),
             required_experiment=(
-                f"{task_id} @ {budget['label']}: {champ_label} vs baseline; paired seeds."
+                f"{task_id} @ {budget['label']}: {champ_label} vs "
+                f"{reference_label}; paired seeds."
             ),
             predicted_variant=champ_label,
             suggested_task=task_id,
             suggested_task_params=task_params,
-            suggested_variants={
-                champ_label: champ.params,
-                plugin.variant_label(baseline_params): baseline_params,
-            },
-            suggested_baseline=plugin.variant_label(baseline_params),
+            suggested_variants=variants,
+            suggested_baseline=reference_label,
             suggested_seeds=self.cfg.seeds_per_config,
             strategy="transfer_test",
         )
@@ -451,18 +473,7 @@ class HypothesisAgent(Agent):
             baseline = plugin.baseline_variant()["policy"]
         except Exception:
             baseline = ""
-        names: list[str] = []
-        ranges = getattr(plugin, "POLICY_PARAM_RANGES", None) or getattr(
-            plugin, "SOLVER_PARAM_RANGES", None)
-        if ranges:
-            names = list(ranges.keys())
-        else:
-            # derive from knobs' applies_to sets + baseline
-            seen = set()
-            for k in plugin.knobs():
-                if k.applies_to_policies:
-                    seen |= set(k.applies_to_policies)
-            names = list(seen)
+        names = plugin.policy_families()
         if not names:
             names = [baseline or "default"]
         ordered = [n for n in names if n != baseline]

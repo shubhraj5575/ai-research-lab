@@ -499,7 +499,7 @@ class PaperGenerator:
                     + ", ".join(f"`{t}`" for t in untested)
                     + "; transfer results there would strengthen external validity."
                 )
-            families = HypothesisFamilies.families(plugin)
+            families = plugin.policy_families() or HypothesisFamilies.families(plugin)
             untouched = [f for f in families if f not in swept_policies]
             if untouched:
                 ideas.append(
