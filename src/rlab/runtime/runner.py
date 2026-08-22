@@ -95,6 +95,12 @@ class ExperimentRunner:
     def materialize(self, workdir: Path, plugin: DomainPlugin, task: str,
                     task_params: dict[str, Any], variant_params: dict[str, Any],
                     seed: int) -> Path:
+        # The runtime owns this directory entirely: any previous content is
+        # removed so re-execution can never observe stale artifacts.
+        import shutil
+
+        if workdir.exists():
+            shutil.rmtree(workdir)
         workdir.mkdir(parents=True, exist_ok=False)
         run_cfg = {
             "task": task,
