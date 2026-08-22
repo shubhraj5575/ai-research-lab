@@ -49,12 +49,16 @@ class ExperimentDesigner(Agent):
 
         from ..runtime.repro import spec_hash as _spec_hash
 
-        baseline_label = None
-        base_params = plugin.baseline_variant()
-        for label, params in variants.items():
-            if params == base_params:
-                baseline_label = label
-                break
+        baseline_label = draft.suggested_baseline or None
+        if baseline_label is not None and baseline_label not in variants:
+            raise DesignError(
+                f"suggested_baseline {baseline_label!r} not among variants")
+        if baseline_label is None:
+            base_params = plugin.baseline_variant()
+            for label, params in variants.items():
+                if params == base_params:
+                    baseline_label = label
+                    break
         # config identity EXCLUDES the seed root: identical comparisons with
         # different seeds are replications, and strategies must not loop on them
         config_key = _spec_hash({

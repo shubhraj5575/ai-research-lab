@@ -158,6 +158,8 @@ class HypothesisAgent(Agent):
             suggested_task=champ.task,
             suggested_task_params=dict(champ.task_params),
             suggested_variants=variants,
+            suggested_baseline=(baseline_label if label != baseline_label
+                                else opponent_label),
             suggested_seeds=min(120, int(self.cfg.seeds_per_config * 2)),
             strategy="replication",
         )
@@ -187,12 +189,17 @@ class HypothesisAgent(Agent):
                 lbl = plugin.variant_label(params)
                 variants[lbl] = params
                 labels.append(lbl)
+            # the incumbent must be IN the comparison as the reference;
+            # otherwise sweeps compare swept cells against an arbitrary order
+            incumbent_label = champ.variant_label
+            if incumbent_label not in variants:
+                variants[incumbent_label] = dict(champ.params)
             best_guess = labels[0]
             return HypothesisDraft(
                 claim=(
                     f"Tuning {knob.name} materially changes {policy} performance: "
                     f"at least one of {labels} beats the incumbent setting "
-                    f"({champ.variant_label}, mean {champ.mean_metric:.4g})."
+                    f"({incumbent_label}, mean {champ.mean_metric:.4g})."
                 ),
                 reasoning=(
                     "Sensitivity sweeps around a champion quantify how much of the "
@@ -213,6 +220,7 @@ class HypothesisAgent(Agent):
                 suggested_task=champ.task,
                 suggested_task_params=dict(champ.task_params),
                 suggested_variants=variants,
+                suggested_baseline=incumbent_label,
                 suggested_seeds=self.cfg.seeds_per_config,
                 strategy="sensitivity_sweep",
             )
@@ -264,6 +272,7 @@ class HypothesisAgent(Agent):
                 champ_label: champ.params,
                 plugin.variant_label(baseline_params): baseline_params,
             },
+            suggested_baseline=plugin.variant_label(baseline_params),
             suggested_seeds=self.cfg.seeds_per_config,
             strategy="transfer_test",
         )
@@ -312,6 +321,7 @@ class HypothesisAgent(Agent):
                 comp_label: competitor,
                 champ.variant_label: champ.params,
             },
+            suggested_baseline=champ.variant_label,
             suggested_seeds=self.cfg.seeds_per_config,
             strategy="head_to_head",
         )
@@ -362,6 +372,7 @@ class HypothesisAgent(Agent):
                             c_label: champ.params,
                             r_label: memory.rival.params,
                         },
+                        suggested_baseline=r_label,
                         suggested_seeds=self.cfg.seeds_per_config,
                         strategy="stress_escalation",
                     )
@@ -426,6 +437,7 @@ class HypothesisAgent(Agent):
                             label: params,
                             plugin.variant_label(baseline_params): baseline_params,
                         },
+                        suggested_baseline=plugin.variant_label(baseline_params),
                         suggested_seeds=self.cfg.seeds_per_config,
                         strategy="exploration",
                     )

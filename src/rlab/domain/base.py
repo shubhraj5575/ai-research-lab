@@ -47,6 +47,7 @@ class HypothesisDraft:
     suggested_task: str | None = None
     suggested_task_params: dict[str, Any] | None = None
     suggested_variants: dict[str, dict[str, Any]] | None = None   # label -> params
+    suggested_baseline: str | None = None      # reference label (must be in variants)
     suggested_seeds: int | None = None
     strategy: str = "starter"                  # which agent strategy produced it
 

@@ -108,3 +108,31 @@ def test_no_comparisons_when_single_variant(lab, tmp_path):
     analysis = analyst.analyze("rs_an", exp)
     assert analysis is not None
     assert analysis.comparisons == []
+
+
+def test_designer_honors_suggested_baseline(tmp_path):
+    """Regression: sweeps must compare against the incumbent, not an
+    alphabetically-first variant (H3 resolution bug in demo #3)."""
+    from rlab.agents.designer import ExperimentDesigner
+    from rlab.agents.hypothesis import HypothesisAgent, Champion, ResearchMemory
+    from rlab.domain import get_domain
+
+    cfg = LabConfig(root=tmp_path)
+    agent = HypothesisAgent(EventBus(), cfg)
+    designer = ExperimentDesigner(EventBus(), cfg)
+    plugin = get_domain("bandit")
+
+    mem = ResearchMemory()
+    mem.n_hypotheses_proposed = 2          # starters already consumed
+    mem.champion = Champion(
+        variant_label="ucb1@c=1", params={"policy": "ucb1", "c": 1.0},
+        task="bernoulli", task_params={"K": 10, "T": 5000, "gap_min": 0.1},
+        budget_label="bernoulli@5000", mean_metric=165.9)
+    mem.knob_tried["ucb1::c"] = {1.0}
+    mem.critic_codes = []
+    draft, _ = agent.propose("rs_x", "q", plugin, mem, gaps=[])
+    assert draft.strategy == "sensitivity_sweep"
+    design = designer.design("rs_x", plugin, draft)
+    # incumbent must be the reference even though it sorts last alphabetically
+    assert design.config.baseline == "ucb1@c=1"
+    assert "ucb1@c=1" in design.config.variants
