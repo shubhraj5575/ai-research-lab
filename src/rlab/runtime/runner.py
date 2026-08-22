@@ -65,7 +65,7 @@ def build_run_tasks(exp: Experiment) -> list[RunTask]:
                 variant_name=vname,
                 variant_index=vi,
                 seed_index=ri,
-                seed=derive_seed(exp.config.seed_root, vi, ri),
+                seed=derive_seed(exp.config.seed_root, ri),
             ))
     return tasks
 
@@ -262,7 +262,7 @@ class ExperimentRunner:
             original_seed = None
             # find the original seed index to reproduce the exact derived seed
             for ri in range(exp.config.n_seeds):
-                if derive_seed(exp.config.seed_root, vi, ri) == seed:
+                if derive_seed(exp.config.seed_root, ri) == seed:
                     original_seed = (vi, ri)
                     break
             if original_seed is None:

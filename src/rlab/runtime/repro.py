@@ -26,14 +26,16 @@ def spec_hash(payload: dict[str, Any]) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def derive_seed(seed_root: int, variant_index: int, repetition: int) -> int:
-    """Deterministic child seed from (root, variant index, repetition index).
+def derive_seed(seed_root: int, repetition: int) -> int:
+    """Deterministic child seed from (root, repetition index).
 
-    Uses SeedSequence spawn semantics so streams are independent yet fully
-    reproducible across processes and platforms.
+    Deliberately independent of the variant index: all variants of one
+    experiment share the same seed set, giving *common random numbers* —
+    identical synthetic environments across variants — which enables paired
+    statistical comparisons inside the analyst.
     """
     ss = np.random.SeedSequence(
         entropy=int(seed_root),
-        spawn_key=(int(variant_index), int(repetition)),
+        spawn_key=(int(repetition),),
     )
     return int(ss.generate_state(1, dtype=np.uint32)[0])

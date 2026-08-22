@@ -62,10 +62,24 @@ def make_exp(domain_name: str, task: str, variants: dict, n_seeds: int = 3,
 
 
 def test_seed_derivation_is_stable_and_independent():
-    a = derive_seed(42, 0, 0)
-    assert derive_seed(42, 0, 0) == a
-    seeds = {derive_seed(42, vi, ri) for vi in range(3) for ri in range(4)}
-    assert len(seeds) == 12
+    a = derive_seed(42, 0)
+    assert derive_seed(42, 0) == a
+    seeds = [derive_seed(42, ri) for ri in range(12)]
+    assert len(set(seeds)) == 12
+
+
+def test_common_random_numbers_across_variants():
+    """All variants of an experiment share one seed set (paired design)."""
+    exp = make_exp("bandit", "bernoulli",
+                   {"ucb1": {"policy": "ucb1", "c": 1.0},
+                    "eps": {"policy": "epsilon_greedy", "eps": 0.1}},
+                   n_seeds=5)
+    tasks = build_run_tasks(exp)
+    seeds_by_variant = {}
+    for t in tasks:
+        seeds_by_variant.setdefault(t.variant_name, set()).add(t.seed)
+    variant_names = list(seeds_by_variant)
+    assert seeds_by_variant[variant_names[0]] == seeds_by_variant[variant_names[1]]
 
 
 def test_build_run_tasks_covers_all_variants_and_seeds():
