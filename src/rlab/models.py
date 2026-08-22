@@ -100,6 +100,9 @@ class Hypothesis:
     status: HypothesisStatus = HypothesisStatus.PROPOSED
     confidence: float | None = None                # post-analysis posterior-ish score
     resolution_note: str = ""
+    # structured prediction used for automated falsification checks:
+    predicted_variant: str | None = None   # variant label expected to win
+    predicted_metric: str | None = None    # metric name it should win on
     created_at: float = field(default_factory=_now)
     resolved_at: float | None = None
 

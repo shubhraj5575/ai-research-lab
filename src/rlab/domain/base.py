@@ -32,11 +32,23 @@ class Knob:
 
 @dataclass(frozen=True)
 class HypothesisDraft:
+    """A hypothesis proposal with an optional concrete experiment sketch.
+
+    The structured fields let the designer translate the draft into an
+    ExperimentConfig mechanically; the prose fields document the science.
+    """
+
     claim: str
     reasoning: str
     expected_result: str
     falsification_condition: str
     required_experiment: str
+    predicted_variant: str | None = None       # label of the variant expected to win
+    suggested_task: str | None = None
+    suggested_task_params: dict[str, Any] | None = None
+    suggested_variants: dict[str, dict[str, Any]] | None = None   # label -> params
+    suggested_seeds: int | None = None
+    strategy: str = "starter"                  # which agent strategy produced it
 
 
 class DomainPlugin(ABC):
@@ -65,6 +77,14 @@ class DomainPlugin(ABC):
     @abstractmethod
     def baseline_variant(self) -> dict[str, Any]:
         """Params of the mandatory baseline variant."""
+
+    @abstractmethod
+    def default_variant_params(self, policy: str) -> dict[str, Any]:
+        """Sensible mid-range params for a policy/solver family."""
+
+    @abstractmethod
+    def difficulty_axes(self) -> dict[str, list[Any]]:
+        """Escalation axes for stress-testing, e.g. {'gap_min': [...]}."""
 
     @abstractmethod
     def validate_variant(self, params: dict[str, Any]) -> None:

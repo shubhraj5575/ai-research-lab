@@ -1,0 +1,449 @@
+"""Hypothesis Agent.
+
+Proposes the next hypothesis from an ordered strategy ladder. Strategies are
+grounded in actual experimental history (the research memory) — every claim,
+expected result, and falsification condition references real numbers from
+prior analyses. The ladder implements a classic empirical-research pattern:
+
+    1. seed hypotheses      – from domain knowledge / literature gaps
+    2. replication          – answer critic demands for more evidence
+    3. sensitivity sweeps   – probe parameter neighborhoods of champions
+    4. transfer tests       – does the effect survive new tasks/budgets?
+    5. head-to-heads        – challenge the champion with fresh competitors
+    6. stress escalation    – harder environments separate methods more sharply
+    7. exploration fallback – cover untried cells systematically
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import Any
+
+from ..config import LabConfig
+from ..domain.base import DomainPlugin, HypothesisDraft, Knob
+from ..events import EventBus
+from ..models import Analysis, Critique
+from .base import Agent
+
+
+@dataclass
+class Champion:
+    variant_label: str
+    params: dict[str, Any]
+    task: str
+    task_params: dict[str, Any]
+    budget_label: str
+    mean_metric: float
+
+
+@dataclass
+class ResearchMemory:
+    tested_labels: set[str] = field(default_factory=set)
+    knob_tried: dict[str, set] = field(default_factory=dict)
+    combo_tested: set[tuple[str, str]] = field(default_factory=set)  # (task,budget)
+    champion: Champion | None = None
+    rival: Champion | None = None
+    critic_codes: list[str] = field(default_factory=list)
+    n_hypotheses_proposed: int = 0
+    failed_strategies: list[str] = field(default_factory=list)
+
+
+def _knob_key(policy: str, knob: str) -> str:
+    return f"{policy}::{knob}"
+
+
+def _fmt_pct(x: float) -> str:
+    sign = "+" if x >= 0 else ""
+    return f"{sign}{x * 100:.1f}%"
+
+
+class HypothesisAgent(Agent):
+    role = "hypothesis"
+
+    def __init__(self, bus: EventBus, cfg: LabConfig):
+        super().__init__(bus)
+        self.cfg = cfg
+
+    # ------------------------------------------------------------------
+    def propose(self, session_id: str, question: str, plugin: DomainPlugin,
+                memory: ResearchMemory,
+                gaps: list | None = None) -> tuple[HypothesisDraft, ResearchMemory]:
+        strategies = [
+            ("starter", self._starter),
+            ("replication", self._replication),
+            ("sensitivity_sweep", self._sensitivity),
+            ("transfer_test", self._transfer),
+            ("head_to_head", self._head_to_head),
+            ("stress_escalation", self._stress),
+            ("exploration", self._exploration),
+        ]
+        attempted: list[str] = []
+        for name, fn in strategies:
+            if name in memory.failed_strategies and name not in ("starter", "exploration"):
+                continue
+            draft = fn(plugin, memory, gaps or [])
+            if draft is None:
+                attempted.append(name)
+                continue
+            memory.n_hypotheses_proposed += 1
+            draft.strategy = name
+            self.announce(session_id, "proposed", strategy=name,
+                          claim=draft.claim[:180])
+            return draft, memory
+        raise RuntimeError("hypothesis agent exhausted all strategies")
+
+    def mark_failed_strategy(self, memory: ResearchMemory, draft: HypothesisDraft,
+                             error: str) -> None:
+        if draft.strategy not in memory.failed_strategies:
+            memory.failed_strategies.append(draft.strategy)
+
+    # ------------------------------------------------------------------
+    # Strategy 1: seed hypotheses from domain knowledge / literature gaps
+    # ------------------------------------------------------------------
+    def _starter(self, plugin: DomainPlugin, memory: ResearchMemory,
+                 gaps: list) -> HypothesisDraft | None:
+        used = memory.n_hypotheses_proposed
+        starters = plugin.starter_hypotheses()
+        if used >= len(starters):
+            return None
+        base_draft = starters[used]
+        first_task, _ = plugin.tasks()[0]
+        variants: dict[str, dict[str, Any]] = {}
+        if "UCB1" in base_draft.claim:
+            challenger = plugin.default_variant_params("ucb1")
+        elif "Thompson" in base_draft.claim:
+            challenger = plugin.default_variant_params(
+                "thompson_gaussian" if first_task == "gaussian" else "thompson_bernoulli")
+        elif "Differential evolution" in base_draft.claim:
+            challenger = plugin.default_variant_params("differential_evolution")
+        else:
+            challenger = {"policy": "hill_climb_adaptive", "sigma0": 0.5}
+        challenger_label = plugin.variant_label(challenger)
+        baseline_params = plugin.baseline_variant()
+        variants[challenger_label] = challenger
+        variants[plugin.variant_label(baseline_params)] = baseline_params
+        task_params = plugin.task_defaults(first_task)
+        if first_task == "bernoulli":
+            task_params["gap_min"] = 0.1
+        budget = plugin.budget_options()[1]  # mid/long budget
+        task_params |= budget["task_params"]
+        return HypothesisDraft(
+            claim=base_draft.claim,
+            reasoning=base_draft.reasoning,
+            expected_result=base_draft.expected_result,
+            falsification_condition=base_draft.falsification_condition,
+            required_experiment=base_draft.required_experiment,
+            predicted_variant=challenger_label,
+            suggested_task=first_task,
+            suggested_task_params=task_params,
+            suggested_variants=variants,
+            suggested_seeds=self.cfg.seeds_per_config,
+        )
+
+    # ------------------------------------------------------------------
+    # Strategy 2: replicate when the critic demanded more evidence
+    # ------------------------------------------------------------------
+    def _replication(self, plugin: DomainPlugin, memory: ResearchMemory,
+                     gaps: list) -> HypothesisDraft | None:
+        if "SMALL_SAMPLE" not in memory.critic_codes or memory.champion is None:
+            return None
+        champ = memory.champion
+        label = plugin.variant_label(champ.params)
+        return HypothesisDraft(
+            claim=(
+                f"Replication check: {label}'s observed advantage "
+                f"(mean {champ.mean_metric:.4g} on {champ.task}/{champ.budget_label}) "
+                "remains statistically stable under a larger sample."
+            ),
+            reasoning=(
+                "The critic flagged SMALL_SAMPLE on the prior comparison; a "
+                "replication at increased n both re-estimates the effect and "
+                "tightens its confidence interval."
+            ),
+            expected_result="Same ranking direction with CI excluding zero.",
+            falsification_condition="Ranking flips or CI includes zero at larger n.",
+            required_experiment=(
+                f"{champ.task} @ {champ.budget_label}; variants {label} vs baseline; "
+                "n doubled."
+            ),
+            predicted_variant=label,
+            suggested_task=champ.task,
+            suggested_task_params=dict(champ.task_params),
+            suggested_variants={
+                label: champ.params,
+                plugin.variant_label(plugin.baseline_variant()): plugin.baseline_variant(),
+            },
+            suggested_seeds=min(120, int(self.cfg.seeds_per_config * 2)),
+            strategy="replication",
+        )
+
+    # ------------------------------------------------------------------
+    # Strategy 3: sweep an unswept knob of the current champion
+    # ------------------------------------------------------------------
+    def _sensitivity(self, plugin: DomainPlugin, memory: ResearchMemory,
+                     gaps: list) -> HypothesisDraft | None:
+        if memory.champion is None:
+            return None
+        champ = memory.champion
+        policy = champ.params.get("policy", "")
+        for knob in plugin.knobs():
+            if knob.applies_to_policies is not None and policy not in knob.applies_to_policies:
+                continue
+            key = _knob_key(policy, knob.name)
+            tried = memory.knob_tried.get(key, set())
+            untried = [v for v in knob.values if v not in tried]
+            if not untried:
+                continue
+            variants: dict[str, dict[str, Any]] = {}
+            labels = []
+            for value in untried[:3]:
+                params = dict(champ.params)
+                params[knob.name] = value
+                lbl = plugin.variant_label(params)
+                variants[lbl] = params
+                labels.append(lbl)
+            best_guess = labels[0]
+            return HypothesisDraft(
+                claim=(
+                    f"Tuning {knob.name} materially changes {policy} performance: "
+                    f"at least one of {labels} beats the incumbent setting "
+                    f"({champ.variant_label}, mean {champ.mean_metric:.4g})."
+                ),
+                reasoning=(
+                    "Sensitivity sweeps around a champion quantify how much of the "
+                    "advantage is parameter luck vs method property."
+                ),
+                expected_result=(
+                    f"A monotone or U-shaped response in {knob.name}; best swept "
+                    f"value improves mean {plugin.primary_metric} by >5%."
+                ),
+                falsification_condition=(
+                    "All swept values within noise of incumbent (all CIs include 0)."
+                ),
+                required_experiment=(
+                    f"{champ.task} @ {champ.budget_label}; sweep {knob.name}"
+                    f"={untried[:3]} vs incumbent; paired seeds."
+                ),
+                predicted_variant=best_guess,
+                suggested_task=champ.task,
+                suggested_task_params=dict(champ.task_params),
+                suggested_variants=variants,
+                suggested_seeds=self.cfg.seeds_per_config,
+                strategy="sensitivity_sweep",
+            )
+        return None
+
+    # ------------------------------------------------------------------
+    # Strategy 4: transfer test on a different task/budget combination
+    # ------------------------------------------------------------------
+    def _transfer(self, plugin: DomainPlugin, memory: ResearchMemory,
+                  gaps: list) -> HypothesisDraft | None:
+        if memory.champion is None:
+            return None
+        champ = memory.champion
+        budgets = plugin.budget_options()
+        candidates = [
+            (task_id, b)
+            for task_id, desc in plugin.tasks()
+            for b in budgets
+            if (task_id, b["label"]) not in memory.combo_tested
+        ]
+        if not candidates:
+            return None
+        task_id, budget = candidates[0]
+        task_params = plugin.task_defaults(task_id) | budget["task_params"]
+        if task_id == "bernoulli" and "gap_min" not in task_params:
+            task_params["gap_min"] = 0.0
+        champ_label = champ.variant_label
+        baseline_params = plugin.baseline_variant()
+        return HypothesisDraft(
+            claim=(
+                f"The champion's advantage transfers to {task_id} at "
+                f"{budget['label']} without retuning."
+            ),
+            reasoning=(
+                "An effect that only holds in its original setting is fragile; "
+                "transfer tests are the cheapest falsification attempt available."
+            ),
+            expected_result=f"{champ_label} still ranks above baseline.",
+            falsification_condition=(
+                f"{champ_label} no better than baseline on {task_id} "
+                f"({budget['label']}); CI of difference includes 0 or reverses."
+            ),
+            required_experiment=(
+                f"{task_id} @ {budget['label']}: {champ_label} vs baseline; paired seeds."
+            ),
+            predicted_variant=champ_label,
+            suggested_task=task_id,
+            suggested_task_params=task_params,
+            suggested_variants={
+                champ_label: champ.params,
+                plugin.variant_label(baseline_params): baseline_params,
+            },
+            suggested_seeds=self.cfg.seeds_per_config,
+            strategy="transfer_test",
+        )
+
+    # ------------------------------------------------------------------
+    # Strategy 5: challenge champion with an untried competitor family
+    # ------------------------------------------------------------------
+    def _head_to_head(self, plugin: DomainPlugin, memory: ResearchMemory,
+                      gaps: list) -> HypothesisDraft | None:
+        if memory.champion is None:
+            return None
+        champ = memory.champion
+        families = self._known_families(plugin)
+        fresh = [fam for fam in families if fam not in memory.tested_labels]
+        if not fresh:
+            return None
+        competitor_policy = fresh[0]
+        competitor = plugin.default_variant_params(competitor_policy)
+        comp_label = plugin.variant_label(competitor)
+        return HypothesisDraft(
+            claim=(
+                f"{comp_label} challenges champion {champ.variant_label} on its own "
+                f"home ground ({champ.task}, {champ.budget_label})."
+            ),
+            reasoning=(
+                f"{competitor_policy} uses a distinct exploration mechanism from "
+                "every method tried so far; a direct match tests whether the "
+                "current ranking reflects method class or specific implementation."
+            ),
+            expected_result=(
+                f"{comp_label} either surpasses the champion by >10% or loses by "
+                ">20% - an informative outcome either way."
+            ),
+            falsification_condition=(
+                "Ambiguous near-tie (CI includes 0) would leave the ranking "
+                "unresolved and trigger a replication."
+            ),
+            required_experiment=(
+                f"{champ.task} @ {champ.budget_label}: {comp_label} vs "
+                f"{champ.variant_label}; paired seeds."
+            ),
+            predicted_variant=None,  # genuinely open outcome
+            suggested_task=champ.task,
+            suggested_task_params=dict(champ.task_params),
+            suggested_variants={
+                comp_label: competitor,
+                champ.variant_label: champ.params,
+            },
+            suggested_seeds=self.cfg.seeds_per_config,
+            strategy="head_to_head",
+        )
+
+    # ------------------------------------------------------------------
+    # Strategy 6: escalate environment difficulty
+    # ------------------------------------------------------------------
+    def _stress(self, plugin: DomainPlugin, memory: ResearchMemory,
+                gaps: list) -> HypothesisDraft | None:
+        if memory.champion is None or memory.rival is None:
+            return None
+        axes = plugin.difficulty_axes()
+        champ = memory.champion
+        for axis, levels in axes.items():
+            if axis == "task":
+                continue
+            current = champ.task_params.get(axis)
+            if current is None or axis in ("T", "n_evals"):
+                higher = [lv for lv in levels if isinstance(current, (int, float))
+                          and isinstance(lv, (int, float)) and lv > current]
+                if higher:
+                    new_level = min(higher)
+                    task_params = dict(champ.task_params)
+                    task_params[axis] = new_level
+                    c_label, r_label = champ.variant_label, memory.rival.variant_label
+                    return HypothesisDraft(
+                        claim=(
+                            f"Under escalated difficulty ({axis}={new_level}), the "
+                            f"champion-vs-rival ordering persists: {c_label} stays "
+                            f"ahead of {r_label}."
+                        ),
+                        reasoning=(
+                            "Harder settings amplify method differences; robust "
+                            "rankings survive escalation while brittle ones invert."
+                        ),
+                        expected_result=(
+                            f"{c_label} retains its lead (CI excludes 0)."
+                        ),
+                        falsification_condition=f"{r_label} overtakes {c_label}.",
+                        required_experiment=(
+                            f"{champ.task} with {axis}={new_level}: {c_label} vs "
+                            f"{r_label}; paired seeds."
+                        ),
+                        predicted_variant=c_label,
+                        suggested_task=champ.task,
+                        suggested_task_params=task_params,
+                        suggested_variants={
+                            c_label: champ.params,
+                            r_label: memory.rival.params,
+                        },
+                        suggested_seeds=self.cfg.seeds_per_config,
+                        strategy="stress_escalation",
+                    )
+        return None
+
+    # ------------------------------------------------------------------
+    # Strategy 7: deterministic exploration of untried cells
+    # ------------------------------------------------------------------
+    def _exploration(self, plugin: DomainPlugin, memory: ResearchMemory,
+                     gaps: list) -> HypothesisDraft | None:
+        first_task, _ = plugin.tasks()[len(memory.tested_labels) % len(list(plugin.tasks()))]
+        families = self._known_families(plugin)
+        untried = [f for f in families if f not in memory.tested_labels]
+        policy = untried[0] if untried else families[len(memory.tested_labels) % len(families)]
+        params = plugin.default_variant_params(policy)
+        label = plugin.variant_label(params)
+        baseline_params = plugin.baseline_variant()
+        budget = plugin.budget_options()[len(memory.tested_labels) % len(plugin.budget_options())]
+        task_params = plugin.task_defaults(first_task) | budget["task_params"]
+        gap_note = ""
+        if gaps:
+            gap_note = f" Motivated by literature gap: {gaps[0].description.split('(')[0].strip()}."
+        return HypothesisDraft(
+            claim=(
+                f"Open-cell exploration: {label} on {first_task} @ {budget['label']} "
+                f"beats the baseline ({plugin.variant_label(baseline_params)})."
+            ) + gap_note,
+            reasoning=(
+                "Systematic coverage of the configuration space guards against "
+                "converging prematurely on a local region of method space."
+            ),
+            expected_result=f"{label} improves on baseline mean {plugin.primary_metric}.",
+            falsification_condition="Baseline equal or better (CI excludes improvement).",
+            required_experiment=f"{first_task} @ {budget['label']}: {label} vs baseline.",
+            predicted_variant=label,
+            suggested_task=first_task,
+            suggested_task_params=task_params,
+            suggested_variants={
+                label: params,
+                plugin.variant_label(baseline_params): baseline_params,
+            },
+            suggested_seeds=self.cfg.seeds_per_config,
+            strategy="exploration",
+        )
+
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _known_families(plugin: DomainPlugin) -> list[str]:
+        """Policy/solver families known to the domain, baseline excluded."""
+        try:
+            baseline = plugin.baseline_variant()["policy"]
+        except Exception:
+            baseline = ""
+        names: list[str] = []
+        ranges = getattr(plugin, "POLICY_PARAM_RANGES", None) or getattr(
+            plugin, "SOLVER_PARAM_RANGES", None)
+        if ranges:
+            names = list(ranges.keys())
+        else:
+            # derive from knobs' applies_to sets + baseline
+            seen = set()
+            for k in plugin.knobs():
+                if k.applies_to_policies:
+                    seen |= set(k.applies_to_policies)
+            names = list(seen)
+        if not names:
+            names = [baseline or "default"]
+        ordered = [n for n in names if n != baseline]
+        return ordered

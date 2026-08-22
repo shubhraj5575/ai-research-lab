@@ -149,6 +149,10 @@ CREATE TABLE IF NOT EXISTS events (
     payload_json TEXT NOT NULL
 );
 """),
+    (2, """
+ALTER TABLE hypotheses ADD COLUMN predicted_variant TEXT;
+ALTER TABLE hypotheses ADD COLUMN predicted_metric TEXT;
+"""),
 ]
 
 
@@ -263,12 +267,12 @@ class Store:
         self._exec(
             "INSERT OR REPLACE INTO hypotheses(id, session_id, number, claim, reasoning, expected_result,"
             " falsification_condition, required_experiment, origin, parent_experiment_id, status,"
-            " confidence, resolution_note, created_at, resolved_at)"
-            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            " confidence, resolution_note, predicted_variant, predicted_metric, created_at, resolved_at)"
+            " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (h.id, h.session_id, h.number, h.claim, h.reasoning, h.expected_result,
              h.falsification_condition, h.required_experiment, str(h.origin),
              h.parent_experiment_id, str(h.status), h.confidence, h.resolution_note,
-             h.created_at, h.resolved_at),
+             h.predicted_variant, h.predicted_metric, h.created_at, h.resolved_at),
         )
         self._conn.commit()
 
@@ -279,7 +283,8 @@ class Store:
     def update_hypothesis(self, hyp_id: str, **fields: Any) -> None:
         allowed = {"claim", "reasoning", "expected_result", "falsification_condition",
                    "required_experiment", "origin", "parent_experiment_id", "status",
-                   "confidence", "resolution_note", "resolved_at"}
+                   "confidence", "resolution_note", "resolved_at",
+                   "predicted_variant", "predicted_metric"}
         sets, params = [], []
         for key, value in fields.items():
             if key not in allowed:
@@ -303,8 +308,10 @@ class Store:
             required_experiment=row["required_experiment"], origin=OriginKind(row["origin"]),
             parent_experiment_id=row["parent_experiment_id"],
             status=HypothesisStatus(row["status"]), confidence=row["confidence"],
-            resolution_note=row["resolution_note"] or "", created_at=row["created_at"],
-            resolved_at=row["resolved_at"],
+            resolution_note=row["resolution_note"] or "",
+            predicted_variant=row["predicted_variant"],
+            predicted_metric=row["predicted_metric"],
+            created_at=row["created_at"], resolved_at=row["resolved_at"],
         )
 
     # -- experiments ---------------------------------------------------------------

@@ -55,6 +55,29 @@ class OptimDomain(DomainPlugin):
     def baseline_variant(self) -> dict[str, Any]:
         return {"policy": "random_search"}
 
+    def default_variant_params(self, solver: str) -> dict[str, Any]:
+        from .kernel import SOLVER_PARAM_RANGES
+
+        defaults = {
+            "random_search": {},
+            "hill_climb": {"sigma": 0.3},
+            "hill_climb_adaptive": {"sigma0": 0.5},
+            "simulated_annealing": {"t0": 1.0, "alpha": 0.995, "sigma_scale": 0.05},
+            "differential_evolution": {"pop_size": 32, "F": 0.7, "CR": 0.9},
+        }
+        if solver not in defaults:
+            raise ValueError(f"unknown solver {solver!r}")
+        params = {"policy": solver} | defaults[solver]
+        self.validate_variant(params)
+        return params
+
+    def difficulty_axes(self) -> dict[str, list[Any]]:
+        return {
+            "task": ["sphere", "rosenbrock", "ackley", "rastrigin"],
+            "dim": [2, 8],
+            "n_evals": [1500, 4000, 6000],
+        }
+
     def validate_variant(self, params: dict[str, Any]) -> None:
         from .kernel import SOLVER_PARAM_RANGES
 

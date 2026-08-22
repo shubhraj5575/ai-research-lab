@@ -51,6 +51,26 @@ class BanditDomain(DomainPlugin):
         # epsilon-greedy at eps=0.1 is the canonical simple baseline
         return {"policy": "epsilon_greedy", "eps": 0.1}
 
+    def default_variant_params(self, policy: str) -> dict[str, Any]:
+        defaults = {
+            "epsilon_greedy": {"eps": 0.1},
+            "ucb1": {"c": 1.0},
+            "ucb_tuned": {},
+            "thompson_bernoulli": {"prior_strength": 1.0},
+            "thompson_gaussian": {},
+            "optimistic_greedy": {"init_value": 1.0},
+        }
+        if policy not in defaults:
+            raise ValueError(f"unknown policy {policy!r}")
+        return {"policy": policy} | defaults[policy]
+
+    def difficulty_axes(self) -> dict[str, list[Any]]:
+        return {
+            "gap_min": [0.0, 0.1, 0.25],
+            "K": [5, 10, 20],
+            "T": [2000, 5000, 10000],
+        }
+
     # ------------------------------------------------------------------
     POLICY_PARAM_RANGES: dict[str, dict[str, tuple[float, float]]] = {
         "epsilon_greedy": {"eps": (0.0, 1.0)},
