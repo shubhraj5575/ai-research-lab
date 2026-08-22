@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from ..config import LabConfig
-from ..models import HypothesisStatus
+from ..models import HypothesisStatus, OriginKind
 from ..store import Store
 from . import figures
 
@@ -309,11 +309,36 @@ class PaperGenerator:
             discussion_points.append(champ)
         refuted_notes = [h for h in refuted]
         if refuted_notes:
-            ids = ", ".join("`" + (e.id) + "`" for e in exps
-                            if e.hypothesis_id in {r.id for r in refuted_notes})
+            ev_by_hyp = {h.id: [e.id for e in exps if e.hypothesis_id == h.id]
+                         for h in refuted_notes}
+            parts = []
+            for h in refuted_notes:
+                ids = ", ".join(f"`{i}`" for i in ev_by_hyp[h.id]) or "cached"
+                parts.append(f"H{h.number} (falsified by {ids})")
             discussion_points.append(
-                f"Refuted hypotheses ({ids}) are retained in the record: negative "
-                "results constrain the hypothesis space for future sessions."
+                "Negative results constrain the hypothesis space and are "
+                "retained: " + "; ".join(parts) + ". In falsification-driven "
+                "autonomous research a refutation is an outcome of equal "
+                "informational value to a confirmation."
+            )
+        # robustness summary across the session's supported claims
+        if supported:
+            n_transfer = sum(1 for h in supported if h.origin == OriginKind.PRIOR_RESULT)
+            if n_transfer:
+                discussion_points.append(
+                    f"{n_transfer} of the supported hypotheses were derived from "
+                    "prior results (sweeps, transfers, replications, head-to-heads) "
+                    "rather than prior belief: the session's knowledge grew out of "
+                    "its own measurements."
+                )
+        repro_all = [c for clist in critiques.values() for c in clist]
+        if repro_all:
+            ok_repro = sum(1 for c in repro_all if c.repro_check_passed)
+            total_checked = sum(1 for c in repro_all if c.repro_check_passed is not None)
+            discussion_points.append(
+                f"Reproducibility audits passed on {ok_repro}/{total_checked} "
+                "critiqued experiments (sampled runs re-executed from scratch; "
+                "result hashes compared byte-for-byte)."
             )
         md.append("\n\n".join(discussion_points) if discussion_points
                   else "*Nothing substantive to discuss yet.*\n")
