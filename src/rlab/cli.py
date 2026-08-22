@@ -206,6 +206,8 @@ def build_parser() -> argparse.ArgumentParser:
     demo_p = sub.add_parser("demo", help="long-form demonstration session")
     common(demo_p)
     demo_p.add_argument("--domain", default="bandit")
+    demo_p.add_argument("--question", default=None)
+    demo_p.add_argument("--title", default="Overnight autonomous demonstration")
     demo_p.add_argument("--iterations", type=int, default=22)
     demo_p.add_argument("--seeds", type=int, default=30)
     demo_p.add_argument("--workers", type=int, default=6)

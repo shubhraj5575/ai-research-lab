@@ -181,6 +181,26 @@ class ResearchDirector(Agent):
                                     experiment_id=None, status="failed",
                                     detail=f"design error: {exc}")
 
+        # ---- repetition guard ----------------------------------------------
+        # A strategy proposing an already-tested comparison (seed-independent)
+        # is looping; retire that strategy for the session instead of paying
+        # for a redundant experiment.
+        cfg_key = design.config.extra.get("config_key", "")
+        if cfg_key and cfg_key in ctx.memory.tested_config_keys:
+            self.hypothesis_agent.mark_failed_strategy(ctx.memory, draft,
+                                                       "repeated design")
+            self.store.update_hypothesis(
+                hyp.id, status=HypothesisStatus.SUPERSEDED,
+                resolved_at=time.time(),
+                resolution_note="design repeats an already-tested comparison")
+            self.bus.publish("iteration.skipped_repeated", session_id=sid,
+                             iteration=it, hypothesis_id=hyp.id,
+                             strategy=draft.strategy)
+            return IterationOutcome(iteration=it, hypothesis_id=hyp.id,
+                                    experiment_id=None,
+                                    status="skipped_repeated",
+                                    detail=f"strategy {draft.strategy} repeated")
+
         # seed_root derived deterministically from session identity + iteration
         design.config.seed_root = int(short_hash(f"{sid}:{hyp.id}", n=8), 16)
 
@@ -345,7 +365,11 @@ class ResearchDirector(Agent):
                 if applies and knob.name in params:
                     key = f"{policy}::{knob.name}"
                     mem.knob_tried.setdefault(key, set()).add(params[knob.name])
-        mem.combo_tested.add((exp.config.task, exp.config.budget_label))
+        mem.combo_tested.add(
+            ctx.plugin.budget_key(exp.config.task,
+                                  exp.config.extra.get("task_params", {})))
+        if exp.config.extra.get("config_key"):
+            mem.tested_config_keys.add(exp.config.extra["config_key"])
 
         ranking = analysis.ranking  # ascending by primary metric (minimize)
         if not ranking:

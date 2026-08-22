@@ -47,17 +47,22 @@ class ExperimentDesigner(Agent):
         n_seeds = int(draft.suggested_seeds or self.cfg.seeds_per_config)
         n_seeds = max(4, min(n_seeds, 200))
 
+        from ..runtime.repro import spec_hash as _spec_hash
+
         baseline_label = None
         base_params = plugin.baseline_variant()
         for label, params in variants.items():
             if params == base_params:
                 baseline_label = label
                 break
-        if draft.predicted_variant is not None and len(variants) > 1 and baseline_label is None:
-            # comparisons need a reference point; include baseline unless this
-            # is a pure head-to-head where champion acts as the reference
-            pass
-
+        # config identity EXCLUDES the seed root: identical comparisons with
+        # different seeds are replications, and strategies must not loop on them
+        config_key = _spec_hash({
+            "domain": plugin.name, "task": task, "task_params": task_params,
+            "variants": variants,
+            "baseline": baseline_label or sorted(variants)[0],
+            "n_seeds": n_seeds,
+        })
         budget_label = f"{task}@{task_params.get('T', task_params.get('n_evals', '?'))}"
         config = ExperimentConfig(
             domain=plugin.name,
@@ -71,6 +76,8 @@ class ExperimentDesigner(Agent):
                 "task_params": task_params,
                 "primary_metric": plugin.primary_metric,
                 "direction": plugin.direction,
+                "budget_key": plugin.budget_key(task, task_params),
+                "config_key": config_key,
             },
         )
         self.announce(session_id, "designed", task=task,

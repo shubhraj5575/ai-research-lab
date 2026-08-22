@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install package + dev deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[server,dev]"
+      - name: Fast unit tests (exclude sandbox-heavy suites)
+        run: |
+          pytest tests/test_stats.py tests/test_literature.py tests/test_reports.py::test_line_chart_deterministic_and_valid tests/test_reports.py::test_comparison_bars_valid tests/test_reports.py::test_outcome_timeline_valid tests/test_reports.py::test_nice_ticks_sane -q
+      - name: Full suite (includes sandboxed subprocess execution)
+        run: pytest tests -q

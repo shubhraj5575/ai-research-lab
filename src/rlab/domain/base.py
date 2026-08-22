@@ -111,6 +111,19 @@ class DomainPlugin(ABC):
     def kernel_source(self) -> str:
         return self.kernel_path().read_text(encoding="utf-8")
 
+    def budget_key(self, task_id: str, task_params: dict[str, Any]) -> str:
+        """Canonical identity of a (task, budget) combination.
+
+        Derived from the parameter names that budget_options actually vary,
+        NOT from display labels, so different components agree on it.
+        """
+        budget_names: set[str] = set()
+        for opt in self.budget_options():
+            budget_names |= set(opt.get("task_params", {}))
+        parts = sorted(f"{k}={task_params[k]}" for k in budget_names
+                       if k in task_params)
+        return f"{task_id}|{','.join(parts)}"
+
     def code_version_hash(self) -> str:
         from ..ids import short_hash
 

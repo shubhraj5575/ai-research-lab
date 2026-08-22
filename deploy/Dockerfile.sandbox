@@ -1,0 +1,18 @@
+# Sandbox image for the DockerExecutor (opt-in): rlab-sandbox:latest
+# Build:  docker build -t rlab-sandbox:latest -f deploy/Dockerfile.sandbox .
+FROM python:3.12-slim
+
+RUN pip install --no-cache-dir numpy==2.* \
+ && rm -rf /root/.cache
+
+# Run experiments as an unprivileged user; workdir is a bind mount.
+RUN useradd --create-home --shell /usr/sbin/nologin runner
+USER runner
+WORKDIR /work
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONHASHSEED=0 \
+    OMP_NUM_THREADS=1 \
+    OPENBLAS_NUM_THREADS=1
+
+CMD ["python", "-I", "kernel.py"]

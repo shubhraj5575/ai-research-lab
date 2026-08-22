@@ -40,7 +40,8 @@ class Champion:
 class ResearchMemory:
     tested_labels: set[str] = field(default_factory=set)
     knob_tried: dict[str, set] = field(default_factory=dict)
-    combo_tested: set[tuple[str, str]] = field(default_factory=set)  # (task,budget)
+    combo_tested: set[str] = field(default_factory=set)   # canonical budget keys
+    tested_config_keys: set[str] = field(default_factory=set)  # seed-independent ids
     champion: Champion | None = None
     rival: Champion | None = None
     critic_codes: list[str] = field(default_factory=list)
@@ -223,17 +224,16 @@ class HypothesisAgent(Agent):
         if memory.champion is None:
             return None
         champ = memory.champion
-        budgets = plugin.budget_options()
-        candidates = [
-            (task_id, b)
-            for task_id, desc in plugin.tasks()
-            for b in budgets
-            if (task_id, b["label"]) not in memory.combo_tested
-        ]
+        candidates = []
+        for task_id, _desc in plugin.tasks():
+            for b in plugin.budget_options():
+                task_params = plugin.task_defaults(task_id) | b["task_params"]
+                key = plugin.budget_key(task_id, task_params)
+                if key not in memory.combo_tested:
+                    candidates.append((task_id, b, key, task_params))
         if not candidates:
             return None
-        task_id, budget = candidates[0]
-        task_params = plugin.task_defaults(task_id) | budget["task_params"]
+        task_id, budget, combo_key, task_params = candidates[0]
         if task_id == "bernoulli" and "gap_min" not in task_params:
             task_params["gap_min"] = 0.0
         champ_label = champ.variant_label
