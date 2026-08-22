@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rlab"
+version = "0.1.0"
+description = "AI Research Lab: an autonomous computational research environment that runs real, reproducible experiments."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "shubhraj5575" }]
+keywords = ["autonomous-agents", "research-automation", "experiments", "reproducibility"]
+dependencies = [
+    "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+server = ["fastapi>=0.110", "uvicorn>=0.29", "httpx>=0.27"]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+rlab = "rlab.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]
