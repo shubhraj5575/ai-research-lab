@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="120">
+<rect width="1100" height="120" fill="#ffffff"/>
+<text x="64" y="22" font-family="Helvetica,Arial" font-size="15" fill="#111827">Hypothesis outcomes by iteration</text>
+<rect x="64" y="44" width="38" height="38" rx="6" fill="#059669" opacity="0.9"/>
+<text x="83.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">supp</text>
+<text x="83.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">1</text>
+<rect x="110" y="44" width="38" height="38" rx="6" fill="#059669" opacity="0.9"/>
+<text x="129.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">supp</text>
+<text x="129.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">2</text>
+<rect x="156" y="44" width="38" height="38" rx="6" fill="#dc2626" opacity="0.9"/>
+<text x="175.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">refu</text>
+<text x="175.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">3</text>
+<rect x="202" y="44" width="38" height="38" rx="6" fill="#059669" opacity="0.9"/>
+<text x="221.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">supp</text>
+<text x="221.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">4</text>
+<rect x="248" y="44" width="38" height="38" rx="6" fill="#059669" opacity="0.9"/>
+<text x="267.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">supp</text>
+<text x="267.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">5</text>
+<rect x="294" y="44" width="38" height="38" rx="6" fill="#059669" opacity="0.9"/>
+<text x="313.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">supp</text>
+<text x="313.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">6</text>
+<rect x="340" y="44" width="38" height="38" rx="6" fill="#d97706" opacity="0.9"/>
+<text x="359.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">inco</text>
+<text x="359.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">7</text>
+<rect x="386" y="44" width="38" height="38" rx="6" fill="#2563eb" opacity="0.9"/>
+<text x="405.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">test</text>
+<text x="405.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">8</text>
+<rect x="432" y="44" width="38" height="38" rx="6" fill="#059669" opacity="0.9"/>
+<text x="451.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">supp</text>
+<text x="451.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">9</text>
+<rect x="478" y="44" width="38" height="38" rx="6" fill="#059669" opacity="0.9"/>
+<text x="497.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">supp</text>
+<text x="497.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">10</text>
+<rect x="524" y="44" width="38" height="38" rx="6" fill="#059669" opacity="0.9"/>
+<text x="543.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">supp</text>
+<text x="543.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">11</text>
+<rect x="570" y="44" width="38" height="38" rx="6" fill="#059669" opacity="0.9"/>
+<text x="589.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">supp</text>
+<text x="589.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">12</text>
+<rect x="616" y="44" width="38" height="38" rx="6" fill="#9ca3af" opacity="0.9"/>
+<text x="635.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">supe</text>
+<text x="635.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">13</text>
+<rect x="662" y="44" width="38" height="38" rx="6" fill="#dc2626" opacity="0.9"/>
+<text x="681.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">refu</text>
+<text x="681.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">14</text>
+<rect x="708" y="44" width="38" height="38" rx="6" fill="#9ca3af" opacity="0.9"/>
+<text x="727.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">supe</text>
+<text x="727.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">15</text>
+<rect x="754" y="44" width="38" height="38" rx="6" fill="#059669" opacity="0.9"/>
+<text x="773.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">supp</text>
+<text x="773.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">16</text>
+<rect x="800" y="44" width="38" height="38" rx="6" fill="#059669" opacity="0.9"/>
+<text x="819.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">supp</text>
+<text x="819.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">17</text>
+<rect x="846" y="44" width="38" height="38" rx="6" fill="#059669" opacity="0.9"/>
+<text x="865.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">supp</text>
+<text x="865.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">18</text>
+<rect x="892" y="44" width="38" height="38" rx="6" fill="#059669" opacity="0.9"/>
+<text x="911.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">supp</text>
+<text x="911.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">19</text>
+<rect x="938" y="44" width="38" height="38" rx="6" fill="#059669" opacity="0.9"/>
+<text x="957.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">supp</text>
+<text x="957.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">20</text>
+<rect x="984" y="44" width="38" height="38" rx="6" fill="#059669" opacity="0.9"/>
+<text x="1003.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">supp</text>
+<text x="1003.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">21</text>
+<rect x="1030" y="44" width="38" height="38" rx="6" fill="#059669" opacity="0.9"/>
+<text x="1049.0" y="66" text-anchor="middle" font-family="Helvetica,Arial" font-size="11" fill="#ffffff">supp</text>
+<text x="1049.0" y="92" text-anchor="middle" font-family="Helvetica,Arial" font-size="10" fill="#6b7280">22</text>
+</svg>

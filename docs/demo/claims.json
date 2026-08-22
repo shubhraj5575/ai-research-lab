@@ -1,0 +1,455 @@
+{
+  "session_id": "rs_3569jzgjaw8z",
+  "policy": "every entry must cite experiment IDs present in the store",
+  "claims": [
+    {
+      "claim": "thompson_bernoulli@prior_strength=1 achieved the best session-wide mean total_regret.",
+      "value": {
+        "mean": 33.76917,
+        "metric": "total_regret"
+      },
+      "evidence": [
+        "ex_1693bwx5c8b0"
+      ],
+      "kind": "observational"
+    },
+    {
+      "claim": "`ucb1@c=1` vs reference `epsilon_greedy@eps=0.1`: \u0394(mean_b\u2212mean_a)=+70.91, CI95=[+48.99, +93.65], adjusted p=1.46e-06, d=1.61 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_3965eakc9p29"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 70.913756,
+        "ci_low": 48.986482,
+        "ci_high": 93.648087,
+        "p_adjusted": 1.4614909561283675e-06,
+        "effect_d": 1.6138
+      }
+    },
+    {
+      "claim": "`ucb1@c=1` vs reference `thompson_bernoulli@prior_strength=1`: \u0394(mean_b\u2212mean_a)=-83.1, CI95=[-88.83, -77.29], adjusted p=2.2e-22, d=-5.81 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_1693bwx5c8b0"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": -83.101409,
+        "ci_low": -88.832236,
+        "ci_high": -77.294473,
+        "p_adjusted": 2.1975577014379963e-22,
+        "effect_d": -5.8072
+      }
+    },
+    {
+      "claim": "`ucb1@c=0.5` vs reference `ucb1@c=0.25`: \u0394(mean_b\u2212mean_a)=+6.076, CI95=[-34.22, +79.7], adjusted p=0.861, d=0.05 \u2192 **not significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_2719m3kz16g0"
+      ],
+      "kind": "non_significant_comparison",
+      "values": {
+        "delta": 6.076114,
+        "ci_low": -34.218889,
+        "ci_high": 79.695257,
+        "p_adjusted": 0.8609964097094835,
+        "effect_d": 0.0457
+      }
+    },
+    {
+      "claim": "`ucb1@c=2` vs reference `ucb1@c=0.25`: \u0394(mean_b\u2212mean_a)=-428.4, CI95=[-473.1, -355.5], adjusted p=6.08e-13, d=-3.14 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_2719m3kz16g0"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": -428.427277,
+        "ci_low": -473.123975,
+        "ci_high": -355.502081,
+        "p_adjusted": 6.084734138847523e-13,
+        "effect_d": -3.1447
+      }
+    },
+    {
+      "claim": "`ucb1@c=0.5` vs reference `epsilon_greedy@eps=0.1`: \u0394(mean_b\u2212mean_a)=+357.1, CI95=[+316.3, +398.9], adjusted p=2.91e-16, d=4.34 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_9942x4k0dmwn"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 357.062423,
+        "ci_low": 316.311077,
+        "ci_high": 398.928955,
+        "p_adjusted": 2.907939473106668e-16,
+        "effect_d": 4.342
+      }
+    },
+    {
+      "claim": "`ucb1@c=0.5` vs reference `epsilon_greedy@eps=0.1`: \u0394(mean_b\u2212mean_a)=+80.3, CI95=[+44.68, +114.6], adjusted p=0.000105, d=0.92 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_731822sc8548"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 80.304234,
+        "ci_low": 44.684744,
+        "ci_high": 114.583444,
+        "p_adjusted": 0.00010522469547303015,
+        "effect_d": 0.9154
+      }
+    },
+    {
+      "claim": "`ucb1@c=0.5` vs reference `epsilon_greedy@eps=0.1`: \u0394(mean_b\u2212mean_a)=+424.2, CI95=[+286.3, +566.6], adjusted p=4.11e-06, d=1.53 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_1634vfdetrv8"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 424.249753,
+        "ci_low": 286.288115,
+        "ci_high": 566.627684,
+        "p_adjusted": 4.114982290528215e-06,
+        "effect_d": 1.5265
+      }
+    },
+    {
+      "claim": "`ucb_tuned` vs reference `ucb1@c=0.5`: \u0394(mean_b\u2212mean_a)=-0.208, CI95=[-3.731, +3.241], adjusted p=0.91, d=-0.02 \u2192 **not significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_8819w4s0swrm"
+      ],
+      "kind": "non_significant_comparison",
+      "values": {
+        "delta": -0.208038,
+        "ci_low": -3.731347,
+        "ci_high": 3.24107,
+        "p_adjusted": 0.9101582127239352,
+        "effect_d": -0.0178
+      }
+    },
+    {
+      "claim": "`ucb1@c=0.5` vs reference `thompson_gaussian`: \u0394(mean_b\u2212mean_a)=+141.2, CI95=[+131.9, +151.1], adjusted p=5.58e-23, d=6.27 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_0482qkg5zq8w"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 141.185077,
+        "ci_low": 131.887526,
+        "ci_high": 151.083785,
+        "p_adjusted": 5.581889492988524e-23,
+        "effect_d": 6.2739
+      }
+    },
+    {
+      "claim": "`ucb1@c=0.5` vs reference `optimistic_greedy@init_value=1`: \u0394(mean_b\u2212mean_a)=+294.9, CI95=[+147.6, +456], adjusted p=0.00098, d=0.95 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_3104f5zenq5p"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 294.916892,
+        "ci_low": 147.623324,
+        "ci_high": 455.958692,
+        "p_adjusted": 0.0009801917948924197,
+        "effect_d": 0.948
+      }
+    },
+    {
+      "claim": "`ucb1@c=0.5` vs reference `optimistic_greedy@init_value=1`: \u0394(mean_b\u2212mean_a)=+545.3, CI95=[+166.6, +983.1], adjusted p=0.0169, d=0.66 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_2223rp5sba6c"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 545.274131,
+        "ci_low": 166.612266,
+        "ci_high": 983.115713,
+        "p_adjusted": 0.016935175253469836,
+        "effect_d": 0.6568
+      }
+    },
+    {
+      "claim": "`ucb1@c=0.5` vs reference `epsilon_greedy@eps=0.1`: \u0394(mean_b\u2212mean_a)=+214.7, CI95=[+193.2, +238.8], adjusted p=4.43e-26, d=3.47 \u2192 **significant** (n=60/variant; `paired_t(df=59)`).",
+      "evidence": [
+        "ex_5179aqbfpgm5"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 214.732514,
+        "ci_low": 193.18781,
+        "ci_high": 238.792408,
+        "p_adjusted": 4.432290536136354e-26,
+        "effect_d": 3.47
+      }
+    },
+    {
+      "claim": "`ucb1@c=0.5` vs reference `epsilon_greedy@eps=0.1`: \u0394(mean_b\u2212mean_a)=+409.8, CI95=[+379.2, +446.1], adjusted p=1.23e-20, d=6.34 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_3051bp3bq0fe"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 409.800562,
+        "ci_low": 379.233454,
+        "ci_high": 446.10462,
+        "p_adjusted": 1.2264805235308432e-20,
+        "effect_d": 6.3415
+      }
+    },
+    {
+      "claim": "`ucb1@c=1` vs reference `epsilon_greedy@eps=0.1`: \u0394(mean_b\u2212mean_a)=-13.56, CI95=[-28.6, +2.861], adjusted p=0.112, d=-0.46 \u2192 **not significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_1384ankpmj9n"
+      ],
+      "kind": "non_significant_comparison",
+      "values": {
+        "delta": -13.555331,
+        "ci_low": -28.604264,
+        "ci_high": 2.860808,
+        "p_adjusted": 0.11170404330871786,
+        "effect_d": -0.456
+      }
+    },
+    {
+      "claim": "`ucb1@c=1` vs reference `epsilon_greedy@eps=0.1`: \u0394(mean_b\u2212mean_a)=+243.8, CI95=[+191.3, +300.2], adjusted p=1.68e-09, d=2.69 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_94266nq6ck2f"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 243.77963,
+        "ci_low": 191.320445,
+        "ci_high": 300.188313,
+        "p_adjusted": 1.6824083200059271e-09,
+        "effect_d": 2.686
+      }
+    },
+    {
+      "claim": "`ucb1@c=1` vs reference `epsilon_greedy@eps=0.1`: \u0394(mean_b\u2212mean_a)=+91.46, CI95=[+55.8, +128.1], adjusted p=3.57e-05, d=1.27 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_7408za11qsbr"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 91.455725,
+        "ci_low": 55.803132,
+        "ci_high": 128.134807,
+        "p_adjusted": 3.568735214045039e-05,
+        "effect_d": 1.2661
+      }
+    },
+    {
+      "claim": "`ucb1@c=1` vs reference `epsilon_greedy@eps=0.1`: \u0394(mean_b\u2212mean_a)=+423.1, CI95=[+306, +553.9], adjusted p=4.62e-07, d=1.74 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_4076kmsb5h99"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 423.053811,
+        "ci_low": 306.018803,
+        "ci_high": 553.924429,
+        "p_adjusted": 4.622885422614154e-07,
+        "effect_d": 1.7435
+      }
+    },
+    {
+      "claim": "`ucb_tuned` vs reference `epsilon_greedy@eps=0.1`: \u0394(mean_b\u2212mean_a)=+64.42, CI95=[+48.76, +83.23], adjusted p=8.87e-08, d=2.06 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_5037ms32thj9"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 64.420465,
+        "ci_low": 48.755095,
+        "ci_high": 83.225477,
+        "p_adjusted": 8.868749512135495e-08,
+        "effect_d": 2.0552
+      }
+    },
+    {
+      "claim": "`ucb_tuned` vs reference `epsilon_greedy@eps=0.1`: \u0394(mean_b\u2212mean_a)=+377.6, CI95=[+335.1, +424.4], adjusted p=4.81e-16, d=4.38 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_4066f5ayqgqy"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 377.625619,
+        "ci_low": 335.144549,
+        "ci_high": 424.440331,
+        "p_adjusted": 4.806984264668162e-16,
+        "effect_d": 4.3804
+      }
+    },
+    {
+      "claim": "`ucb_tuned` vs reference `epsilon_greedy@eps=0.1`: \u0394(mean_b\u2212mean_a)=+117.2, CI95=[+56.31, +183.4], adjusted p=0.0017, d=0.97 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_66603f43w27f"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 117.199117,
+        "ci_low": 56.310971,
+        "ci_high": 183.356665,
+        "p_adjusted": 0.0017030797586626467,
+        "effect_d": 0.9711
+      }
+    },
+    {
+      "claim": "`ucb_tuned` vs reference `epsilon_greedy@eps=0.1`: \u0394(mean_b\u2212mean_a)=+453.3, CI95=[+303.7, +598.9], adjusted p=1.17e-06, d=1.57 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_3514ax8v8g46"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 453.324271,
+        "ci_low": 303.684995,
+        "ci_high": 598.861779,
+        "p_adjusted": 1.1734516505236642e-06,
+        "effect_d": 1.5699
+      }
+    },
+    {
+      "claim": "On Bernoulli bandits with a visible gap (gap_min >= 0.1), UCB1(c=1) achieves lower mean total regret than the epsilon-greedy(0.1) baseline at horizon T=5000.",
+      "status": "supported",
+      "evidence": [
+        "ex_3965eakc9p29"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "Thompson sampling (Beta prior) dominates UCB1(c=1) on hard-gap Bernoulli bandits (gap_min >= 0.2) at short horizons (T=2000).",
+      "status": "supported",
+      "evidence": [
+        "ex_1693bwx5c8b0"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "The champion's advantage transfers to bernoulli at T=10000 without retuning.",
+      "status": "supported",
+      "evidence": [
+        "ex_9942x4k0dmwn"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "The champion's advantage transfers to gaussian at T=2000 without retuning.",
+      "status": "supported",
+      "evidence": [
+        "ex_731822sc8548"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "The champion's advantage transfers to gaussian at T=10000 without retuning.",
+      "status": "supported",
+      "evidence": [
+        "ex_1634vfdetrv8"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "optimistic_greedy@init_value=1 challenges champion ucb1@c=0.5 on its own home ground (bernoulli, bernoulli@5000).",
+      "status": "supported",
+      "evidence": [
+        "ex_3104f5zenq5p"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "Under escalated difficulty (T=10000), the champion-vs-rival ordering persists: ucb1@c=0.5 stays ahead of optimistic_greedy@init_value=1.",
+      "status": "supported",
+      "evidence": [
+        "ex_2223rp5sba6c"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "Replication check: ucb1@c=0.5's observed standing (mean 46.86 on bernoulli/bernoulli@5000) remains statistically stable under a larger sample.",
+      "status": "supported",
+      "evidence": [
+        "ex_5179aqbfpgm5"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "Under escalated difficulty (T=10000), the champion-vs-rival ordering persists: ucb1@c=0.5 stays ahead of epsilon_greedy@eps=0.1.",
+      "status": "supported",
+      "evidence": [
+        "ex_3051bp3bq0fe"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "Open-cell exploration: ucb1@c=1 on bernoulli @ T=10000 beats the baseline (epsilon_greedy@eps=0.1). Motivated by literature gap: Literature coverage is thin on 'policy'.",
+      "status": "supported",
+      "evidence": [
+        "ex_94266nq6ck2f"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "Open-cell exploration: ucb1@c=1 on gaussian @ T=2000 beats the baseline (epsilon_greedy@eps=0.1). Motivated by literature gap: Literature coverage is thin on 'policy'.",
+      "status": "supported",
+      "evidence": [
+        "ex_7408za11qsbr"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "Open-cell exploration: ucb1@c=1 on gaussian @ T=10000 beats the baseline (epsilon_greedy@eps=0.1). Motivated by literature gap: Literature coverage is thin on 'policy'.",
+      "status": "supported",
+      "evidence": [
+        "ex_4076kmsb5h99"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "Open-cell exploration: ucb_tuned on bernoulli @ T=2000 beats the baseline (epsilon_greedy@eps=0.1). Motivated by literature gap: Literature coverage is thin on 'policy'.",
+      "status": "supported",
+      "evidence": [
+        "ex_5037ms32thj9"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "Open-cell exploration: ucb_tuned on bernoulli @ T=10000 beats the baseline (epsilon_greedy@eps=0.1). Motivated by literature gap: Literature coverage is thin on 'policy'.",
+      "status": "supported",
+      "evidence": [
+        "ex_4066f5ayqgqy"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "Open-cell exploration: ucb_tuned on gaussian @ T=2000 beats the baseline (epsilon_greedy@eps=0.1). Motivated by literature gap: Literature coverage is thin on 'policy'.",
+      "status": "supported",
+      "evidence": [
+        "ex_66603f43w27f"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "Open-cell exploration: ucb_tuned on gaussian @ T=10000 beats the baseline (epsilon_greedy@eps=0.1). Motivated by literature gap: Literature coverage is thin on 'policy'.",
+      "status": "supported",
+      "evidence": [
+        "ex_3514ax8v8g46"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "Tuning c materially changes ucb1 performance: at least one of ['ucb1@c=0.25', 'ucb1@c=0.5', 'ucb1@c=2'] beats the incumbent setting (ucb1@c=1, mean 165.9).",
+      "status": "refuted",
+      "evidence": [
+        "ex_2719m3kz16g0"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "Open-cell exploration: ucb1@c=1 on bernoulli @ T=2000 beats the baseline (epsilon_greedy@eps=0.1). Motivated by literature gap: Literature coverage is thin on 'policy'.",
+      "status": "refuted",
+      "evidence": [
+        "ex_1384ankpmj9n"
+      ],
+      "kind": "hypothesis_resolution"
+    }
+  ]
+}

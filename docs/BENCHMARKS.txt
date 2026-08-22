@@ -1,0 +1,13 @@
+benchmark                                      seconds  notes
+----------------------------------------------------------------------------------------
+stats.welch_ttest x1000                          0.094  10622 calls/s
+stats.paired_bootstrap(4000)                     0.072  55384 resamples/s
+stats.mann_whitney_u                             0.003  
+kernel.bandit T=5000                             0.081  median of 100; 12 episodes/s
+kernel.optim DE evals=4000                       0.084  median of 40
+store.save_run x3000                             0.231  13001 rows/s (WAL)
+store.list_runs(3000)                            0.041  73400 rows/s
+sandbox.parallel workers=1                       6.448  32 runs -> 5.0 runs/s
+sandbox.parallel workers=2                       4.725  32 runs -> 6.8 runs/s
+sandbox.parallel workers=4                       2.698  32 runs -> 11.9 runs/s
+sandbox.parallel workers=8                       1.855  32 runs -> 17.2 runs/s

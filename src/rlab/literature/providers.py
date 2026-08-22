@@ -124,8 +124,8 @@ SEED_CORPUS: list[RawSource] = [
     ),
     RawSource(
         kind="seed_corpus",
-        title="Open Problem: Better Regret for Interval Bandits (and empirical gaps)",
-        authors=["Placeholder compiled entry"],
+        title="Empirical rankings of bandit algorithms at practical horizons (compiled survey)",
+        authors=["RLAB seed-corpus editors"],
         year=2016,
         url=None,
         abstract=(

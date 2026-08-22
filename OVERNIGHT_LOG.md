@@ -86,3 +86,21 @@ and honest observations. Newest entries at the bottom.
   inconclusive, @10000 supported), head-to-heads, sweeps; repetition guard
   superseding loops as designed. Full artifacts + paper generation after
   completion; benchmarks recorded in BENCHMARKS section of FINAL_REPORT.
+
+## Phase 8 — Demonstration session #3 (final) ✅
+- 22 iterations → 20 experiments (2 skipped by repetition guard, as designed),
+  1,290 seeded runs, ~14 min wall time. All reproducibility audits OK.
+- Scientific narrative: UCB1 > ε-greedy at T≥5000; Thompson wins hard-gap
+  short-horizon; c-sweep found c=0.5 optimal; transfers held across gaussian
+  tasks and horizons; ucb_tuned swept the remaining cells; one honest
+  refutation (ε-greedy beat UCB1(c=1) at T=2000 gap-free).
+- **Defect found in H3 resolution:** sensitivity sweep omitted the incumbent,
+  so an alphabetical variant became the reference arm. Fixed via
+  `suggested_baseline` on drafts + designer validation + explicit references
+  in all five comparison strategies. Regression test added.
+- Paper generated (22 figures), claims.json referentially valid.
+- Benchmarks recorded (docs/BENCHMARKS.txt): sandbox scaling 5→17 runs/s at
+  1→8 workers; kernels ~0.08 s median; SQLite 13k rows/s.
+- Security review written (SECURITY.md); dashboard verified live against the
+  demo DB (98-node graph, zero validation issues).
+- Full suite: 122 passed / 1 skipped (network-gated).
