@@ -12,7 +12,7 @@ from rlab.events import EventBus
 from rlab.runtime.runner import ExperimentRunner
 from rlab.sandbox.local import LocalExecutor
 from rlab.store import Store
-from tests.test_runtime import make_exp
+from helpers import make_exp
 
 
 @pytest.fixture()

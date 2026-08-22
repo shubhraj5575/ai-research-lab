@@ -15,10 +15,10 @@ from rlab.runtime import (
     ExperimentRunner,
     RunTask,
     build_run_tasks,
-    compute_spec_hash,
     derive_seed,
 )
 from rlab.sandbox.local import LocalExecutor
+from helpers import make_exp
 from rlab.store import Store
 
 
@@ -31,34 +31,6 @@ def lab(tmp_path: Path):
     runner = ExperimentRunner(store, cfg, LocalExecutor(), bus)
     return cfg, store, bus, runner
 
-
-def make_exp(domain_name: str, task: str, variants: dict, n_seeds: int = 3,
-             seed_root: int = 7, task_params: dict | None = None,
-             baseline: str | None = None) -> Experiment:
-    cfg = ExperimentConfig(
-        domain=domain_name, task=task, variants=variants,
-        baseline=baseline or sorted(variants)[0], n_seeds=n_seeds,
-        seed_root=seed_root, budget_label="test",
-        extra={"task_params": task_params or {}},
-    )
-    exp = Experiment(
-        id="ex_rt1", session_id="rs_t", hypothesis_id="hy_t", iteration=1,
-        config=cfg, spec_hash=compute_spec_hash.__name__, code_version="v",
-        git_commit="c", env_json={}, dataset_ref={},
-    )
-    exp.spec_hash = compute_spec_hash(exp)  # type: ignore[assignment]
-    # compute_spec_hash is a function taking exp; emulate properly below.
-    from rlab.runtime.repro import spec_hash as shash
-
-    payload = {
-        "domain": cfg.domain, "task": cfg.task,
-        "task_params": cfg.extra.get("task_params", {}),
-        "variants": cfg.variants, "baseline": cfg.baseline,
-        "n_seeds": cfg.n_seeds, "seed_root": cfg.seed_root,
-        "budget_label": cfg.budget_label,
-    }
-    exp.spec_hash = shash(payload)  # type: ignore[assignment]
-    return exp
 
 
 def test_seed_derivation_is_stable_and_independent():
