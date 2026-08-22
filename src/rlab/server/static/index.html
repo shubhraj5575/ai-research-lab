@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Research Lab</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <div class="brand">AI&nbsp;RESEARCH&nbsp;LAB <span class="sub">autonomous computational research</span></div>
+  <div class="conn"><span id="live-dot" class="dot"></span><span id="live-label">connecting…</span></div>
+</header>
+
+<nav id="tabs">
+  <button data-tab="overview" class="tab active">Overview</button>
+  <button data-tab="experiments" class="tab">Experiments &amp; Results</button>
+  <button data-tab="graph" class="tab">Research Graph</button>
+  <button data-tab="timeline" class="tab">Event Timeline</button>
+</nav>
+
+<main id="app">
+  <!-- ============ OVERVIEW ============ -->
+  <section id="tab-overview" class="panel active">
+    <div id="session-picker" class="card row">
+      <label>Session:</label>
+      <select id="session-select"></select>
+      <span id="session-meta" class="muted"></span>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Research Question</h3>
+        <p id="question" class="question">—</p>
+        <div id="champion-card" class="hidden">
+          <h3>Current Best (last experiment)</h3>
+          <p id="champion" class="mono"></p>
+        </div>
+        <div id="gap-card" class="hidden">
+          <h3>Literature Gaps</h3>
+          <ul id="gaps"></ul>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Hypotheses <span id="hyp-count" class="muted"></span></h3>
+        <table class="tbl" id="hyp-table">
+          <thead><tr><th>#</th><th>Status</th><th>Claim</th><th>Conf.</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Iteration Outcomes</h3>
+      <div id="outcome-strip" class="strip"></div>
+    </div>
+    <div class="card">
+      <h3>Live Activity</h3>
+      <ul id="feed" class="feed"></ul>
+    </div>
+  </section>
+
+  <!-- ============ EXPERIMENTS ============ -->
+  <section id="tab-experiments" class="panel">
+    <div class="card">
+      <h3>Experiment Queue / History</h3>
+      <table class="tbl" id="exp-table">
+        <thead><tr>
+          <th>#</th><th>Task / Budget</th><th>Variants</th><th>Seeds</th>
+          <th>Status</th><th>Best variant</th><th>Critic</th><th></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="card hidden" id="exp-detail">
+      <h3 id="exp-detail-title">Experiment detail</h3>
+      <div id="exp-detail-body"></div>
+      <svg id="conv-chart" width="760" height="420" viewBox="0 0 760 440"></svg>
+      <h4>Runs (preview)</h4>
+      <table class="tbl compact" id="runs-table">
+        <thead><tr><th>Variant</th><th>Seed</th><th>Status</th><th>Metrics</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ GRAPH ============ -->
+  <section id="tab-graph" class="panel">
+    <div class="card">
+      <h3>Provenance Graph
+        <span class="muted small">hypothesis → experiment → analysis/critique chains</span>
+      </h3>
+      <div class="legend">
+        <span class="lg q">question</span><span class="lg hy">hypothesis</span>
+        <span class="lg ex">experiment</span><span class="lg an">analysis</span>
+        <span class="lg cr">critique</span><span class="lg gp">gap</span>
+        <span class="lg sr">source</span>
+      </div>
+      <div id="graph-holder"><svg id="graph-svg" width="1100" height="640"></svg></div>
+      <p class="muted small" id="graph-validation"></p>
+      <a id="graphml-link" href="#" download="research-graph.graphml">download GraphML</a>
+    </div>
+  </section>
+
+  <!-- ============ TIMELINE ============ -->
+  <section id="tab-timeline" class="panel">
+    <div class="card">
+      <h3>Audit Trail (persisted events)</h3>
+      <ul id="event-log" class="feed tall"></ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span id="footer-meta" class="muted small"></span>
+</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
