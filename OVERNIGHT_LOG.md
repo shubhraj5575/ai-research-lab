@@ -104,3 +104,20 @@ and honest observations. Newest entries at the bottom.
 - Security review written (SECURITY.md); dashboard verified live against the
   demo DB (98-node graph, zero validation issues).
 - Full suite: 122 passed / 1 skipped (network-gated).
+
+## Phase 9 — Cross-domain validation + advanced improvements ✅
+- Formalized `DomainPlugin.policy_families()` (removed convention-based lookup).
+- Added Wilcoxon signed-rank test: exact enumeration for n≤13, tie-corrected
+  normal approximation above; verified against independent brute force.
+- Optim-domain session #1 exposed the third 'champion==baseline' collapse
+  (transfer built {champ, baseline} → single-variant experiments for 8
+  iterations). Fixed: transfer contrasts against rival when champion is the
+  baseline policy; regression test added.
+- Optim session #2 (post-fix): 14/14 iterations produced real multi-variant
+  experiments; 10 supported / 3 refuted; 14/14 reproducibility audits passed.
+  Notable honest findings: random search beat SA on sphere@4000 evals;
+  SA's edge appeared only on rosenbrock; hill_climb_adaptive reached mean
+  regret 0 on sphere at dim=8.
+- Paper Discussion section now reports negative results, derived-claims ratio,
+  and aggregate reproducibility statistics.
+- Both papers archived under docs/demo/.

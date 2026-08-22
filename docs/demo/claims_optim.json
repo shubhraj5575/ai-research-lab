@@ -1,0 +1,345 @@
+{
+  "session_id": "rs_56945a960cjc",
+  "policy": "every entry must cite experiment IDs present in the store",
+  "claims": [
+    {
+      "claim": "hill_climb_adaptive@sigma0=0.5 achieved the best session-wide mean final_regret.",
+      "value": {
+        "mean": 0.0,
+        "metric": "final_regret"
+      },
+      "evidence": [
+        "ex_25747jz87qny"
+      ],
+      "kind": "observational"
+    },
+    {
+      "claim": "`simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1` vs reference `random_search`: \u0394(mean_b\u2212mean_a)=-6.21, CI95=[-8.27, -4.188], adjusted p=1.47e-06, d=-1.74 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_5779ddqhmtt9"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": -6.209671,
+        "ci_low": -8.26963,
+        "ci_high": -4.188417,
+        "p_adjusted": 1.4669611308606703e-06,
+        "effect_d": -1.7403
+      }
+    },
+    {
+      "claim": "`simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1` vs reference `differential_evolution@CR=0.9,F=0.7,pop_size=32`: \u0394(mean_b\u2212mean_a)=-34.92, CI95=[-38.13, -31.62], adjusted p=1.32e-18, d=-4.91 \u2192 **significant** (n=30/variant; `paired_t(df=29)`).",
+      "evidence": [
+        "ex_9088m7bkhfkw"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": -34.918633,
+        "ci_low": -38.126508,
+        "ci_high": -31.623883,
+        "p_adjusted": 1.3188167322302812e-18,
+        "effect_d": -4.9142
+      }
+    },
+    {
+      "claim": "`random_search` vs reference `simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1`: \u0394(mean_b\u2212mean_a)=+8.063, CI95=[+5.512, +10.54], adjusted p=2.03e-06, d=1.75 \u2192 **significant** (n=24/variant; `paired_t(df=23)`).",
+      "evidence": [
+        "ex_31044408f4tm"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 8.063038,
+        "ci_low": 5.512161,
+        "ci_high": 10.543503,
+        "p_adjusted": 2.0348324072870077e-06,
+        "effect_d": 1.7506
+      }
+    },
+    {
+      "claim": "`random_search` vs reference `simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1`: \u0394(mean_b\u2212mean_a)=+7.049, CI95=[+5.635, +8.406], adjusted p=1.45e-09, d=2.76 \u2192 **significant** (n=24/variant; `paired_t(df=23)`).",
+      "evidence": [
+        "ex_5537caaxbedz"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 7.049239,
+        "ci_low": 5.634618,
+        "ci_high": 8.406287,
+        "p_adjusted": 1.4471317930971266e-09,
+        "effect_d": 2.7589
+      }
+    },
+    {
+      "claim": "`random_search` vs reference `simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1`: \u0394(mean_b\u2212mean_a)=-105.7, CI95=[-124.6, -84.89], adjusted p=6.7e-10, d=-2.48 \u2192 **significant** (n=24/variant; `paired_t(df=23)`).",
+      "evidence": [
+        "ex_8199qwm6va8w"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": -105.672571,
+        "ci_low": -124.5575,
+        "ci_high": -84.888461,
+        "p_adjusted": 6.699841301706625e-10,
+        "effect_d": -2.4755
+      }
+    },
+    {
+      "claim": "`random_search` vs reference `simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1`: \u0394(mean_b\u2212mean_a)=-78.19, CI95=[-97.55, -60.02], adjusted p=5.93e-08, d=-2.44 \u2192 **significant** (n=24/variant; `paired_t(df=23)`).",
+      "evidence": [
+        "ex_0601e21mp9az"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": -78.191664,
+        "ci_low": -97.551952,
+        "ci_high": -60.016515,
+        "p_adjusted": 5.928519920337307e-08,
+        "effect_d": -2.4413
+      }
+    },
+    {
+      "claim": "`random_search` vs reference `simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1`: \u0394(mean_b\u2212mean_a)=+17.75, CI95=[+12.8, +22.59], adjusted p=8.42e-07, d=1.96 \u2192 **significant** (n=24/variant; `paired_t(df=23)`).",
+      "evidence": [
+        "ex_3799kamsghgj"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 17.753123,
+        "ci_low": 12.798954,
+        "ci_high": 22.590142,
+        "p_adjusted": 8.417631344750019e-07,
+        "effect_d": 1.9579
+      }
+    },
+    {
+      "claim": "`random_search` vs reference `simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1`: \u0394(mean_b\u2212mean_a)=+16.22, CI95=[+12.63, +19.85], adjusted p=1.65e-08, d=2.27 \u2192 **significant** (n=24/variant; `paired_t(df=23)`).",
+      "evidence": [
+        "ex_6362mwkd23fe"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 16.222583,
+        "ci_low": 12.63005,
+        "ci_high": 19.845264,
+        "p_adjusted": 1.6524618455223158e-08,
+        "effect_d": 2.2666
+      }
+    },
+    {
+      "claim": "`random_search` vs reference `simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1`: \u0394(mean_b\u2212mean_a)=+1.9, CI95=[+1.605, +2.224], adjusted p=5.15e-11, d=2.84 \u2192 **significant** (n=24/variant; `paired_t(df=23)`).",
+      "evidence": [
+        "ex_9749k66mcemt"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 1.89996,
+        "ci_low": 1.604764,
+        "ci_high": 2.224396,
+        "p_adjusted": 5.149383247468134e-11,
+        "effect_d": 2.8431
+      }
+    },
+    {
+      "claim": "`random_search` vs reference `simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1`: \u0394(mean_b\u2212mean_a)=+0.8899, CI95=[+0.5482, +1.229], adjusted p=4.21e-05, d=1.27 \u2192 **significant** (n=24/variant; `paired_t(df=23)`).",
+      "evidence": [
+        "ex_22324npykes2"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 0.889946,
+        "ci_low": 0.548235,
+        "ci_high": 1.229048,
+        "p_adjusted": 4.2101397052829894e-05,
+        "effect_d": 1.2733
+      }
+    },
+    {
+      "claim": "`hill_climb@sigma=0.3` vs reference `random_search`: \u0394(mean_b\u2212mean_a)=+8.468, CI95=[+7.741, +9.27], adjusted p=1.95e-16, d=6.03 \u2192 **significant** (n=24/variant; `paired_t(df=23)`).",
+      "evidence": [
+        "ex_53015wbfkjnj"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 8.46785,
+        "ci_low": 7.740869,
+        "ci_high": 9.27008,
+        "p_adjusted": 1.9452074472826652e-16,
+        "effect_d": 6.0313
+      }
+    },
+    {
+      "claim": "`hill_climb@sigma=0.1` vs reference `hill_climb@sigma=0.3`: \u0394(mean_b\u2212mean_a)=+0.05282, CI95=[+0.04737, +0.05776], adjusted p=2.58e-15, d=5.68 \u2192 **significant** (n=24/variant; `paired_t(df=23)`).",
+      "evidence": [
+        "ex_80220wag7082"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 0.052816,
+        "ci_low": 0.047373,
+        "ci_high": 0.057756,
+        "p_adjusted": 2.5801593809314607e-15,
+        "effect_d": 5.679
+      }
+    },
+    {
+      "claim": "`hill_climb@sigma=0.6` vs reference `hill_climb@sigma=0.3`: \u0394(mean_b\u2212mean_a)=-0.1626, CI95=[-0.1902, -0.134], adjusted p=8.45e-11, d=-3.10 \u2192 **significant** (n=24/variant; `paired_t(df=23)`).",
+      "evidence": [
+        "ex_80220wag7082"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": -0.162605,
+        "ci_low": -0.190196,
+        "ci_high": -0.134032,
+        "p_adjusted": 8.452038469430626e-11,
+        "effect_d": -3.105
+      }
+    },
+    {
+      "claim": "`hill_climb_adaptive@sigma0=0.5` vs reference `hill_climb@sigma=0.1`: \u0394(mean_b\u2212mean_a)=+0.005825, CI95=[+0.0053, +0.006383], adjusted p=3.05e-16, d=5.90 \u2192 **significant** (n=24/variant; `paired_t(df=23)`).",
+      "evidence": [
+        "ex_25747jz87qny"
+      ],
+      "kind": "significant_comparison",
+      "values": {
+        "delta": 0.005825,
+        "ci_low": 0.0053,
+        "ci_high": 0.006383,
+        "p_adjusted": 3.0461688844605044e-16,
+        "effect_d": 5.8971
+      }
+    },
+    {
+      "claim": "`hill_climb_adaptive@sigma0=0.2` vs reference `hill_climb_adaptive@sigma0=0.5`: \u0394(mean_b\u2212mean_a)=+0, CI95=[-0, +0], adjusted p=0.192, d=0.45 \u2192 **not significant** (n=24/variant; `paired_t(df=23)`).",
+      "evidence": [
+        "ex_6544vg7c0dd9"
+      ],
+      "kind": "non_significant_comparison",
+      "values": {
+        "delta": 0.0,
+        "ci_low": -0.0,
+        "ci_high": 0.0,
+        "p_adjusted": 0.19222146591540473,
+        "effect_d": 0.4492
+      }
+    },
+    {
+      "claim": "`hill_climb_adaptive@sigma0=1` vs reference `hill_climb_adaptive@sigma0=0.5`: \u0394(mean_b\u2212mean_a)=+0, CI95=[-0, +0], adjusted p=0.192, d=0.54 \u2192 **not significant** (n=24/variant; `paired_t(df=23)`).",
+      "evidence": [
+        "ex_6544vg7c0dd9"
+      ],
+      "kind": "non_significant_comparison",
+      "values": {
+        "delta": 0.0,
+        "ci_low": -0.0,
+        "ci_high": 0.0,
+        "p_adjusted": 0.19222146591540473,
+        "effect_d": 0.5422
+      }
+    },
+    {
+      "claim": "Differential evolution outperforms simulated annealing on the multimodal rastrigin landscape (dim=8, evals=4000).",
+      "status": "supported",
+      "evidence": [
+        "ex_9088m7bkhfkw"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "The champion's standing transfers to sphere at evals=1500 without retuning: random_search stays ahead of simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1 (rival).",
+      "status": "supported",
+      "evidence": [
+        "ex_31044408f4tm"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "The champion's standing transfers to sphere at evals=6000 without retuning: random_search stays ahead of simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1 (rival).",
+      "status": "supported",
+      "evidence": [
+        "ex_5537caaxbedz"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "The champion's standing transfers to rastrigin at evals=1500 without retuning: random_search stays ahead of simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1 (rival).",
+      "status": "supported",
+      "evidence": [
+        "ex_3799kamsghgj"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "The champion's standing transfers to rastrigin at evals=6000 without retuning: random_search stays ahead of simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1 (rival).",
+      "status": "supported",
+      "evidence": [
+        "ex_6362mwkd23fe"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "The champion's standing transfers to ackley at evals=1500 without retuning: random_search stays ahead of simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1 (rival).",
+      "status": "supported",
+      "evidence": [
+        "ex_9749k66mcemt"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "The champion's standing transfers to ackley at evals=6000 without retuning: random_search stays ahead of simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1 (rival).",
+      "status": "supported",
+      "evidence": [
+        "ex_22324npykes2"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "hill_climb@sigma=0.3 challenges champion random_search on its own home ground (sphere, sphere@4000).",
+      "status": "supported",
+      "evidence": [
+        "ex_53015wbfkjnj"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "Tuning sigma materially changes hill_climb performance: at least one of ['hill_climb@sigma=0.1', 'hill_climb@sigma=0.6'] beats the incumbent setting (hill_climb@sigma=0.3, mean 0.05534).",
+      "status": "supported",
+      "evidence": [
+        "ex_80220wag7082"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "hill_climb_adaptive@sigma0=0.5 challenges champion hill_climb@sigma=0.1 on its own home ground (sphere, sphere@4000).",
+      "status": "supported",
+      "evidence": [
+        "ex_25747jz87qny"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "Simulated annealing with geometric cooling (t0=1, alpha=0.995) achieves lower mean final regret than random search on the unimodal sphere function (dim=8) at budget evals=4000.",
+      "status": "refuted",
+      "evidence": [
+        "ex_5779ddqhmtt9"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "The champion's standing transfers to rosenbrock at evals=1500 without retuning: random_search stays ahead of simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1 (rival).",
+      "status": "refuted",
+      "evidence": [
+        "ex_8199qwm6va8w"
+      ],
+      "kind": "hypothesis_resolution"
+    },
+    {
+      "claim": "The champion's standing transfers to rosenbrock at evals=6000 without retuning: random_search stays ahead of simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1 (rival).",
+      "status": "refuted",
+      "evidence": [
+        "ex_0601e21mp9az"
+      ],
+      "kind": "hypothesis_resolution"
+    }
+  ]
+}

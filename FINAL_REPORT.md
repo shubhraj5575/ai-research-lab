@@ -218,17 +218,25 @@ https://github.com/shubhraj5575/ai-research-lab
 | Area | Status |
 |---|---|
 | Research loop (8 agents) | **COMPLETED** |
-| Two computational domains | **COMPLETED** |
+| Two computational domains | **COMPLETED** (both validated by full autonomous sessions) |
 | Reproducibility machinery | **COMPLETED** |
 | Statistical engine (calibrated) | **COMPLETED** |
 | Adversarial critic | **COMPLETED** |
 | Provenance graph + exports | **COMPLETED** |
 | Evidence-grounded papers | **COMPLETED** |
 | Live dashboard | **COMPLETED** |
-| Flagship ≥20-iteration demo | **COMPLETED** (22 iterations / 20 experiments / 1290 runs) |
+| Flagship ≥20-iteration demo (bandit) | **COMPLETED** (22 iterations / 20 experiments / 1290 runs; 16 supported / 2 refuted) |
+| Cross-domain validation session (optim) | **COMPLETED** (14 iterations / 744 runs; 10 supported / 3 refuted; 14/14 reproducibility audits passed) |
+| Wilcoxon signed-rank test | **COMPLETED** (exact n≤13 + normal approx) |
 | LLM narration layer | **COMPLETED** (code + graceful degrade; untested against live APIs — no keys) |
 | Docker executor path | **PARTIALLY COMPLETED** (implemented + image recipe; not exercised against a built image in this window) |
 | Learned strategy selection | **NOT COMPLETED** (roadmap) |
+
+Cross-domain findings (optim session, `docs/demo/paper_optim.md`): random
+search upset simulated annealing on sphere@4000 evals (H1 refuted); DE won
+rastrigin as literature predicts; SA's advantage appeared only on rosenbrock;
+hill-climb sweeps found σ=0.1 optimal and (1+1)-adaptive ES ultimately reached
+mean regret 0 on sphere.
 
 Honesty notes: all experimental results are real outputs of real processes;
 the reasoning layer is rule-based and labeled as such; no metric anywhere in
