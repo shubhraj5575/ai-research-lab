@@ -16,7 +16,7 @@ prior analyses. The ladder implements a classic empirical-research pattern:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from ..config import LabConfig
@@ -85,8 +85,8 @@ class HypothesisAgent(Agent):
             if draft is None:
                 attempted.append(name)
                 continue
+            draft = replace(draft, strategy=name)
             memory.n_hypotheses_proposed += 1
-            draft.strategy = name
             self.announce(session_id, "proposed", strategy=name,
                           claim=draft.claim[:180])
             return draft, memory
@@ -102,43 +102,12 @@ class HypothesisAgent(Agent):
     # ------------------------------------------------------------------
     def _starter(self, plugin: DomainPlugin, memory: ResearchMemory,
                  gaps: list) -> HypothesisDraft | None:
+        """Seed hypotheses carry their own explicit experiment sketches."""
         used = memory.n_hypotheses_proposed
         starters = plugin.starter_hypotheses()
         if used >= len(starters):
             return None
-        base_draft = starters[used]
-        first_task, _ = plugin.tasks()[0]
-        variants: dict[str, dict[str, Any]] = {}
-        if "UCB1" in base_draft.claim:
-            challenger = plugin.default_variant_params("ucb1")
-        elif "Thompson" in base_draft.claim:
-            challenger = plugin.default_variant_params(
-                "thompson_gaussian" if first_task == "gaussian" else "thompson_bernoulli")
-        elif "Differential evolution" in base_draft.claim:
-            challenger = plugin.default_variant_params("differential_evolution")
-        else:
-            challenger = {"policy": "hill_climb_adaptive", "sigma0": 0.5}
-        challenger_label = plugin.variant_label(challenger)
-        baseline_params = plugin.baseline_variant()
-        variants[challenger_label] = challenger
-        variants[plugin.variant_label(baseline_params)] = baseline_params
-        task_params = plugin.task_defaults(first_task)
-        if first_task == "bernoulli":
-            task_params["gap_min"] = 0.1
-        budget = plugin.budget_options()[1]  # mid/long budget
-        task_params |= budget["task_params"]
-        return HypothesisDraft(
-            claim=base_draft.claim,
-            reasoning=base_draft.reasoning,
-            expected_result=base_draft.expected_result,
-            falsification_condition=base_draft.falsification_condition,
-            required_experiment=base_draft.required_experiment,
-            predicted_variant=challenger_label,
-            suggested_task=first_task,
-            suggested_task_params=task_params,
-            suggested_variants=variants,
-            suggested_seeds=self.cfg.seeds_per_config,
-        )
+        return starters[used]
 
     # ------------------------------------------------------------------
     # Strategy 2: replicate when the critic demanded more evidence
@@ -149,9 +118,25 @@ class HypothesisAgent(Agent):
             return None
         champ = memory.champion
         label = plugin.variant_label(champ.params)
+        baseline_params = plugin.baseline_variant()
+        baseline_label = plugin.variant_label(baseline_params)
+        # If the champion *is* the baseline, a champion-vs-baseline replication
+        # degenerates; replicate the champion-vs-rival contrast instead.
+        if label == baseline_label:
+            if memory.rival is None:
+                return None
+            opponent = memory.rival
+            opponent_label = plugin.variant_label(opponent.params)
+            if opponent.task != champ.task or opponent.budget_label != champ.budget_label:
+                return None
+            variants = {label: champ.params, opponent_label: opponent.params}
+            contrast = f"{label} vs {opponent_label}"
+        else:
+            variants = {label: champ.params, baseline_label: baseline_params}
+            contrast = f"{label} vs {baseline_label}"
         return HypothesisDraft(
             claim=(
-                f"Replication check: {label}'s observed advantage "
+                f"Replication check: {label}'s observed standing "
                 f"(mean {champ.mean_metric:.4g} on {champ.task}/{champ.budget_label}) "
                 "remains statistically stable under a larger sample."
             ),
@@ -163,16 +148,13 @@ class HypothesisAgent(Agent):
             expected_result="Same ranking direction with CI excluding zero.",
             falsification_condition="Ranking flips or CI includes zero at larger n.",
             required_experiment=(
-                f"{champ.task} @ {champ.budget_label}; variants {label} vs baseline; "
+                f"{champ.task} @ {champ.budget_label}; variants {contrast}; "
                 "n doubled."
             ),
             predicted_variant=label,
             suggested_task=champ.task,
             suggested_task_params=dict(champ.task_params),
-            suggested_variants={
-                label: champ.params,
-                plugin.variant_label(plugin.baseline_variant()): plugin.baseline_variant(),
-            },
+            suggested_variants=variants,
             suggested_seeds=min(120, int(self.cfg.seeds_per_config * 2)),
             strategy="replication",
         )

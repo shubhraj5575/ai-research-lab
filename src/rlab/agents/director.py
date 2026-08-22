@@ -26,7 +26,8 @@ from ..models import (
     HypothesisStatus,
     OriginKind,
 )
-from ..runtime.runner import ExperimentRunner, compute_spec_hash
+from ..runtime.runner import ExperimentRunner
+from ..runtime.repro import spec_hash
 from ..store import Store
 from .analyst import DataAnalyst
 from .base import Agent
@@ -69,6 +70,8 @@ class ResearchDirector(Agent):
         self.cfg = cfg
         self.store = store
         self._brief_gaps: list = []
+        # persist every bus event into the audit trail
+        self.bus.subscribe(lambda e: self.store.persist_event(e.to_dict()))
         self.literature = LiteratureAgent(bus, cfg, store)
         self.hypothesis_agent = HypothesisAgent(bus, cfg)
         self.designer = ExperimentDesigner(bus, cfg)

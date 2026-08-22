@@ -15,6 +15,7 @@ from ..literature.analysis import (
     identify_gaps,
     organize_themes,
 )
+from ..literature.cache import DiskCache
 from ..literature.providers import ArxivProvider, SeedCorpusProvider
 from ..models import ResearchGap, Source
 from ..store import Store

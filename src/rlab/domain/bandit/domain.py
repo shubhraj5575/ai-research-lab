@@ -115,6 +115,19 @@ class BanditDomain(DomainPlugin):
 
     # ------------------------------------------------------------------
     def starter_hypotheses(self) -> list[HypothesisDraft]:
+        # Starters carry explicit experiment sketches so the designer never
+        # has to parse prose to build configurations.
+        t_mid = {"K": 10, "T": 5000, "gap_min": 0.1}
+        h1_variants = {
+            "ucb1@c=1": {"policy": "ucb1", "c": 1.0},
+            "epsilon_greedy@eps=0.1": {"policy": "epsilon_greedy", "eps": 0.1},
+        }
+        t_hard_short = {"K": 10, "T": 2000, "gap_min": 0.2}
+        h2_variants = {
+            "thompson_bernoulli@prior_strength=1": {"policy": "thompson_bernoulli",
+                                                    "prior_strength": 1.0},
+            "ucb1@c=1": {"policy": "ucb1", "c": 1.0},
+        }
         return [
             HypothesisDraft(
                 claim=(
@@ -130,17 +143,22 @@ class BanditDomain(DomainPlugin):
                 ),
                 expected_result="Mean total regret of UCB1 < baseline by >= 30%, p < 0.05.",
                 falsification_condition=(
-                    "UCB1 mean regret >= baseline mean regret, or bootstrap CI of the "
-                    "difference includes zero."
+                    "UCB1 mean regret >= baseline mean regret, or paired-bootstrap "
+                    "CI of the difference includes zero."
                 ),
                 required_experiment=(
                     "Bernoulli task, K=10, T=5000, gap_min=0.1; UCB1(c=1) vs "
                     "epsilon_greedy(eps=0.1); n>=30 paired seeds per variant."
                 ),
+                predicted_variant="ucb1@c=1",
+                suggested_task="bernoulli",
+                suggested_task_params=t_mid,
+                suggested_variants=h1_variants,
+                suggested_seeds=30,
             ),
             HypothesisDraft(
                 claim=(
-                    "Thompson sampling (Beta prior) dominates UCB1 on hard-gap "
+                    "Thompson sampling (Beta prior) dominates UCB1(c=1) on hard-gap "
                     "Bernoulli bandits (gap_min >= 0.2) at short horizons (T=2000)."
                 ),
                 reasoning=(
@@ -150,13 +168,18 @@ class BanditDomain(DomainPlugin):
                 ),
                 expected_result="Thompson mean regret < UCB1 mean regret by >= 15%.",
                 falsification_condition=(
-                    "No significant regret reduction (CI includes zero after Holm "
-                    "correction across the comparison family)."
+                    "No significant regret reduction (paired-bootstrap CI includes "
+                    "zero after Holm correction across the comparison family)."
                 ),
                 required_experiment=(
                     "Bernoulli task, K=10, T=2000, gap_min=0.2; thompson_bernoulli vs "
                     "ucb1(c=1); n>=30 paired seeds."
                 ),
+                predicted_variant="thompson_bernoulli@prior_strength=1",
+                suggested_task="bernoulli",
+                suggested_task_params=t_hard_short,
+                suggested_variants=h2_variants,
+                suggested_seeds=30,
             ),
         ]
 

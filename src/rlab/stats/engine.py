@@ -161,6 +161,29 @@ def bootstrap_delta_ci(a: Sequence[float], b: Sequence[float], iters: int = 2000
     return float(np.percentile(deltas, lo_q)), float(np.percentile(deltas, hi_q))
 
 
+def bootstrap_delta_ci_paired(a: Sequence[float], b: Sequence[float], iters: int = 2000,
+                              seed: int = 0, alpha: float = 0.05) -> tuple[float, float]:
+    """Bootstrap CI for ``mean(b) - mean(a)`` preserving pairing.
+
+    Resamples *seed indices jointly* so each replicate keeps the common-random-
+    numbers structure; this matches the paired design of lab experiments and
+    yields far tighter intervals when run-to-run correlation is high.
+    """
+    xa = np.asarray(a, dtype=float)
+    xb = np.asarray(b, dtype=float)
+    if xa.size != xb.size:
+        raise ValueError("paired bootstrap requires equal-length samples")
+    n = xa.size
+    diffs = xb - xa
+    rng = np.random.default_rng(seed)
+    stats = np.empty(iters)
+    for i in range(iters):
+        idx = rng.integers(0, n, size=n)
+        stats[i] = diffs[idx].mean()
+    lo_q, hi_q = 100 * alpha / 2, 100 * (1 - alpha / 2)
+    return float(np.percentile(stats, lo_q)), float(np.percentile(stats, hi_q))
+
+
 # ---------------------------------------------------------------------------
 # Effect sizes
 # ---------------------------------------------------------------------------
@@ -248,6 +271,7 @@ def required_n_per_group(d: float, alpha: float = 0.05, power: float = 0.8) -> i
 
 __all__ = [
     "describe", "welch_ttest", "paired_ttest", "mann_whitney_u",
-    "bootstrap_ci", "bootstrap_delta_ci", "cohens_d", "cliffs_delta",
+    "bootstrap_ci", "bootstrap_delta_ci", "bootstrap_delta_ci_paired",
+    "cohens_d", "cliffs_delta",
     "holm_bonferroni", "benjamini_hochberg", "required_n_per_group",
 ]

@@ -123,7 +123,18 @@ class CriticAgent(Agent):
                 need = required_n_per_group(d if d > 0.01 else 2.0)
             except ValueError:
                 need = n_min
-            if n_min < need:
+            if need > 500:
+                # chasing an effect this small is impractical; report honestly
+                findings.append(CritiqueFinding(
+                    code="NEGLIGIBLE_EFFECT", severity="info",
+                    message=(
+                        f"Observed |d|={d:.3f}; resolving it at alpha="
+                        f"{self.cfg.alpha}/power 0.8 would require ~{need} seeds "
+                        "per arm - not practically actionable."
+                    ),
+                    recommendation="Treat as negligible; do not chase with more seeds.",
+                ))
+            elif n_min < need:
                 findings.append(CritiqueFinding(
                     code="SMALL_SAMPLE", severity="minor",
                     message=(

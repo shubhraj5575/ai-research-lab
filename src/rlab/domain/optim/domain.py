@@ -7,14 +7,6 @@ from typing import Any
 
 from ..base import DomainPlugin, HypothesisDraft, Knob
 
-_SOLVER_RANGES = {
-    "random_search": {},
-    "hill_climb": {"sigma"},
-    "hill_climb_adaptive": {"sigma0", "adapt_window", "target_rate"},
-    "simulated_annealing": {"t0", "alpha", "sigma_scale"},
-    "differential_evolution": {"pop_size", "F", "CR"},
-}
-
 
 class OptimDomain(DomainPlugin):
     name = "optim"
@@ -82,16 +74,17 @@ class OptimDomain(DomainPlugin):
         from .kernel import SOLVER_PARAM_RANGES
 
         solver = params.get("policy")
-        if solver not in _SOLVER_RANGES:
+        if solver not in SOLVER_PARAM_RANGES:
             raise ValueError(f"unknown solver {solver!r}")
-        for key, (lo_v, hi_v) in SOLVER_PARAM_RANGES[solver].items():
-            if key not in params:
-                raise ValueError(f"solver {solver!r} requires param {key!r}")
-            if not lo_v <= float(params[key]) <= hi_v:
-                raise ValueError(f"{key}={params[key]} outside [{lo_v}, {hi_v}]")
-        extra = set(params) - {"policy"} - _SOLVER_RANGES[solver]
-        if extra:
-            raise ValueError(f"unexpected params for {solver!r}: {sorted(extra)}")
+        ranges = SOLVER_PARAM_RANGES[solver]
+        for key, value in params.items():
+            if key == "policy":
+                continue
+            if key not in ranges:
+                raise ValueError(f"unexpected param {key!r} for solver {solver!r}")
+            lo_v, hi_v = ranges[key]
+            if not lo_v <= float(value) <= hi_v:
+                raise ValueError(f"{key}={value} outside [{lo_v}, {hi_v}]")
 
     def variant_label(self, params: dict[str, Any]) -> str:
         solver = params["policy"]
@@ -113,6 +106,10 @@ class OptimDomain(DomainPlugin):
         ]
 
     def starter_hypotheses(self) -> list[HypothesisDraft]:
+        sa_params = {"policy": "simulated_annealing", "t0": 1.0, "alpha": 0.995,
+                     "sigma_scale": 0.05}
+        de_params = {"policy": "differential_evolution", "pop_size": 32, "F": 0.7,
+                     "CR": 0.9}
         return [
             HypothesisDraft(
                 claim=(
@@ -133,6 +130,14 @@ class OptimDomain(DomainPlugin):
                     "sphere dim=8 n_evals=4000; simulated_annealing(t0=1,alpha=0.995) "
                     "vs random_search; n>=30 paired seeds."
                 ),
+                predicted_variant="simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1",
+                suggested_task="sphere",
+                suggested_task_params={"dim": 8, "n_evals": 4000},
+                suggested_variants={
+                    "simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1": sa_params,
+                    "random_search": {"policy": "random_search"},
+                },
+                suggested_seeds=30,
             ),
             HypothesisDraft(
                 claim=(
@@ -151,6 +156,14 @@ class OptimDomain(DomainPlugin):
                     "rastrigin dim=8 n_evals=4000; differential_evolution(pop=32) vs "
                     "simulated_annealing(t0=1, alpha=0.995); n>=30 paired seeds."
                 ),
+                predicted_variant=("differential_evolution@CR=0.9,F=0.7,pop_size=32"),
+                suggested_task="rastrigin",
+                suggested_task_params={"dim": 8, "n_evals": 4000},
+                suggested_variants={
+                    "differential_evolution@CR=0.9,F=0.7,pop_size=32": de_params,
+                    "simulated_annealing@alpha=0.995,sigma_scale=0.05,t0=1": sa_params,
+                },
+                suggested_seeds=30,
             ),
         ]
 

@@ -67,7 +67,11 @@ class ExperimentDesigner(Agent):
             n_seeds=n_seeds,
             seed_root=0,  # filled by orchestrator (session-derived)
             budget_label=budget_label,
-            extra={"task_params": task_params},
+            extra={
+                "task_params": task_params,
+                "primary_metric": plugin.primary_metric,
+                "direction": plugin.direction,
+            },
         )
         self.announce(session_id, "designed", task=task,
                       variants=len(variants), seeds=n_seeds)
