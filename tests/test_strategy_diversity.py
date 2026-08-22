@@ -71,3 +71,7 @@ def test_session_designs_do_not_repeat(tmp_path: Path):
         f"design diversity collapsed: only {len(signatures)} distinct designs "
         f"across {len(exps)} experiments"
     )
+    # wasted iterations (superseded/skipped) must stay a small fraction
+    wasted = sum(1 for o in summary["outcomes"]
+                 if o["status"] in ("skipped_repeated", "failed"))
+    assert wasted <= 3, f"{wasted} iterations wasted on repeated proposals"

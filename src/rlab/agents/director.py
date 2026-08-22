@@ -118,6 +118,17 @@ class ResearchDirector(Agent):
             ctx.outcomes.append(outcome.__dict__)
             if outcome.status == "error":
                 break
+            if outcome.status == "exhausted":
+                status = "strategy_space_exhausted"
+                self.store.set_session_status(ctx.session_id, status)
+                self.bus.publish("session.finished", session_id=ctx.session_id,
+                                 iterations=ctx.iteration, status=status)
+                return {
+                    "session_id": ctx.session_id,
+                    "iterations": ctx.iteration,
+                    "status": status,
+                    "outcomes": [o for o in ctx.outcomes],
+                }
         status = "completed" if ctx.iteration >= max_it else "budget_exhausted"
         self.store.set_session_status(ctx.session_id, status)
         self.bus.publish("session.finished", session_id=ctx.session_id,
@@ -148,8 +159,8 @@ class ResearchDirector(Agent):
                 break
         if draft is None:
             return IterationOutcome(iteration=it, hypothesis_id="",
-                                    experiment_id=None, status="error",
-                                    detail="no proposal possible")
+                                    experiment_id=None, status="exhausted",
+                                    detail="all strategies exhausted or retired")
 
         hyp = Hypothesis(
             id=new_id("hypothesis"),
@@ -359,6 +370,8 @@ class ResearchDirector(Agent):
         for label, params in exp.config.variants.items():
             mem.tested_labels.add(label)
             policy = params.get("policy")
+            if policy:
+                mem.tested_families.add(policy)
             for knob in ctx.plugin.knobs():
                 applies = knob.applies_to_policies is None or (
                     policy in knob.applies_to_policies)

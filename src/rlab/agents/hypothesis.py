@@ -39,9 +39,11 @@ class Champion:
 @dataclass
 class ResearchMemory:
     tested_labels: set[str] = field(default_factory=set)
+    tested_families: set[str] = field(default_factory=set)   # policy/solver names
     knob_tried: dict[str, set] = field(default_factory=dict)
     combo_tested: set[str] = field(default_factory=set)   # canonical budget keys
     tested_config_keys: set[str] = field(default_factory=set)  # seed-independent ids
+    explored_cells: set[str] = field(default_factory=set)  # "family::budget_key"
     champion: Champion | None = None
     rival: Champion | None = None
     critic_codes: list[str] = field(default_factory=list)
@@ -80,7 +82,7 @@ class HypothesisAgent(Agent):
         ]
         attempted: list[str] = []
         for name, fn in strategies:
-            if name in memory.failed_strategies and name not in ("starter", "exploration"):
+            if name in memory.failed_strategies:
                 continue
             draft = fn(plugin, memory, gaps or [])
             if draft is None:
@@ -275,7 +277,7 @@ class HypothesisAgent(Agent):
             return None
         champ = memory.champion
         families = self._known_families(plugin)
-        fresh = [fam for fam in families if fam not in memory.tested_labels]
+        fresh = [fam for fam in families if fam not in memory.tested_families]
         if not fresh:
             return None
         competitor_policy = fresh[0]
@@ -370,40 +372,64 @@ class HypothesisAgent(Agent):
     # ------------------------------------------------------------------
     def _exploration(self, plugin: DomainPlugin, memory: ResearchMemory,
                      gaps: list) -> HypothesisDraft | None:
-        first_task, _ = plugin.tasks()[len(memory.tested_labels) % len(list(plugin.tasks()))]
+        """Systematic coverage of (family × task/budget) cells.
+
+        Cells are recorded the moment a draft is proposed so this strategy
+        cannot loop even if the director rejects the design later.
+        """
+        tasks = list(plugin.tasks())
+        budgets = plugin.budget_options()
         families = self._known_families(plugin)
-        untried = [f for f in families if f not in memory.tested_labels]
-        policy = untried[0] if untried else families[len(memory.tested_labels) % len(families)]
-        params = plugin.default_variant_params(policy)
-        label = plugin.variant_label(params)
-        baseline_params = plugin.baseline_variant()
-        budget = plugin.budget_options()[len(memory.tested_labels) % len(plugin.budget_options())]
-        task_params = plugin.task_defaults(first_task) | budget["task_params"]
-        gap_note = ""
-        if gaps:
-            gap_note = f" Motivated by literature gap: {gaps[0].description.split('(')[0].strip()}."
-        return HypothesisDraft(
-            claim=(
-                f"Open-cell exploration: {label} on {first_task} @ {budget['label']} "
-                f"beats the baseline ({plugin.variant_label(baseline_params)})."
-            ) + gap_note,
-            reasoning=(
-                "Systematic coverage of the configuration space guards against "
-                "converging prematurely on a local region of method space."
-            ),
-            expected_result=f"{label} improves on baseline mean {plugin.primary_metric}.",
-            falsification_condition="Baseline equal or better (CI excludes improvement).",
-            required_experiment=f"{first_task} @ {budget['label']}: {label} vs baseline.",
-            predicted_variant=label,
-            suggested_task=first_task,
-            suggested_task_params=task_params,
-            suggested_variants={
-                label: params,
-                plugin.variant_label(baseline_params): baseline_params,
-            },
-            suggested_seeds=self.cfg.seeds_per_config,
-            strategy="exploration",
-        )
+        for fam in families:
+            params = plugin.default_variant_params(fam)
+            label = plugin.variant_label(params)
+            for task_id, _desc in tasks:
+                base_params = plugin.task_defaults(task_id)
+                if task_id == "bernoulli" and "gap_min" not in base_params:
+                    base_params["gap_min"] = 0.0
+                for b in budgets:
+                    task_params = dict(base_params) | b["task_params"]
+                    cell_key = f"{fam}::{plugin.budget_key(task_id, task_params)}"
+                    if cell_key in memory.explored_cells:
+                        continue
+                    memory.explored_cells.add(cell_key)
+                    baseline_params = plugin.baseline_variant()
+                    gap_note = ""
+                    if gaps:
+                        gap_note = (" Motivated by literature gap: "
+                                    + gaps[0].description.split("(")[0].strip() + ".")
+                    return HypothesisDraft(
+                        claim=(
+                            f"Open-cell exploration: {label} on {task_id} @ "
+                            f"{b['label']} beats the baseline "
+                            f"({plugin.variant_label(baseline_params)})."
+                        ) + gap_note,
+                        reasoning=(
+                            "Systematic coverage of the configuration space "
+                            "guards against converging prematurely on a local "
+                            "region of method space."
+                        ),
+                        expected_result=(
+                            f"{label} improves on baseline mean "
+                            f"{plugin.primary_metric}."
+                        ),
+                        falsification_condition=(
+                            "Baseline equal or better (CI excludes improvement)."
+                        ),
+                        required_experiment=(
+                            f"{task_id} @ {b['label']}: {label} vs baseline."
+                        ),
+                        predicted_variant=label,
+                        suggested_task=task_id,
+                        suggested_task_params=task_params,
+                        suggested_variants={
+                            label: params,
+                            plugin.variant_label(baseline_params): baseline_params,
+                        },
+                        suggested_seeds=self.cfg.seeds_per_config,
+                        strategy="exploration",
+                    )
+        return None
 
     # ------------------------------------------------------------------
     @staticmethod
