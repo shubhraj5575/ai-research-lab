@@ -241,15 +241,16 @@ class CriticAgent(Agent):
                             "transfer experiment."
                         ),
                     ))
-        budget_tokens = [t for t in budget_label_re.findall(claim)]
-        if budget_tokens:
+        budget_numbers = [m.split("=")[1] for m in
+                          budget_label_re.findall(claim)]
+        if budget_numbers:
             actual = exp.config.budget_label.lower()
-            missing = [t for t in budget_tokens if t not in actual]
-            if len(missing) == len(budget_tokens) and budget_tokens:
+            missing = [t for t in budget_numbers if t not in actual]
+            if len(missing) == len(budget_numbers):
                 findings.append(CritiqueFinding(
                     code="SCOPE_OVERREACH", severity="minor",
                     message=(
-                        f"Claim cites budgets {budget_tokens} not matching the "
+                        f"Claim cites budgets {budget_numbers} not matching the "
                         f"experiment's budget ({exp.config.budget_label})."
                     ),
                     recommendation="Align claim with the executed budget.",

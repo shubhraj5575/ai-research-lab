@@ -160,11 +160,16 @@ class DataAnalyst(Agent):
             lo, hi = bootstrap_delta_ci(all_b, all_a, iters=self.cfg.bootstrap_iters,
                                         seed=boot_seed, alpha=self.cfg.alpha)
             ci_kind = "unpaired"
-        effect = cohens_d(all_b, all_a)  # sign: A relative to B
+        effect = cohens_d(all_a, all_b)  # sign convention matches delta below
         mean_a = sum(all_a) / len(all_a)
         mean_b = sum(all_b) / len(all_b)
-        delta = mean_a - mean_b
-        better = "a" if ((delta < 0) if direction == "minimize" else (delta > 0)) else "b"
+        # canonical convention (see models.Comparison):
+        #   delta = mean_b - mean_a; CI/effect share this orientation
+        delta = mean_b - mean_a
+        if direction == "minimize":
+            better = "a" if delta > 0 else ("b" if delta < 0 else "tie")
+        else:
+            better = "a" if delta < 0 else ("b" if delta > 0 else "tie")
         comp = Comparison(
             variant_a=variant_a, variant_b=variant_b, metric=metric,
             n_a=len(all_a), n_b=len(all_b),
