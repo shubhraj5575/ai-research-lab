@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass
 
 from ..config import LabConfig
@@ -134,7 +135,7 @@ class LiteratureAgent(Agent):
             gaps=gaps, online_used=online_used,
         )
         self.store.persist_event({
-            "ts": __import__("time").time(),
+            "ts": time.time(),
             "type": "literature.brief",
             "session_id": session_id,
             "payload": {
